@@ -1,3 +1,7 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin 
+from sqlalchemy.orm import validates
 from lib.db.courseforge import db
 
 class Course(db.Model):
@@ -6,7 +10,7 @@ class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 

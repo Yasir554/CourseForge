@@ -1,4 +1,8 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin 
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import validates
 from lib.db.courseforge import db
 
 class User(db.Model):
@@ -40,7 +44,7 @@ class InstructorProfile(db.Model):
     last_name = db.Column(db.String(50))
     profile_picture = db.Column(db.String(255))
     
-    user = db.relationsh# 'student' or 'instructor'ip('User', back_populates='instructor_profile')
+    user = db.relationship('User', back_populates='instructor_profile')
     
     def to_dict(self):
         return {

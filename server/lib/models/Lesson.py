@@ -4,8 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin 
 from sqlalchemy.orm import validates
 # from flask_migrate import Migrate
-from Courses import Course
-from app import db
+from lib.models.courses import Course
+from lib.db.courseforge import db
 
 
 # Lesson model
