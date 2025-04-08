@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from CourseForge import db
+from lib.db.courseforge import db
 
 class User(db.Model):
     __table__ = 'users'
