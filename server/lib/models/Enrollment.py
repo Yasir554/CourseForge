@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 # Done by Jonas
-=======
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin 
@@ -42,4 +41,3 @@ class Enrollment(db.Model, SerializerMixin):
         return f"<Enrollment id={self.id} user_id={self.user_id} course_id={self.course_id}>"
     
 
->>>>>>> 8bba38d339d02e48a0f2bab59a557d6d717d2913

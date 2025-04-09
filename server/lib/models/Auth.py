@@ -1,6 +1,6 @@
-<<<<<<< HEAD
+
 # will be done by Caleb
-=======
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin 
@@ -84,4 +84,4 @@ class StudentProfile(db.Model):
     
     def __repr__(self):
         return f"<StudentProfile {self.first_name} {self.last_name}>"
->>>>>>> 8bba38d339d02e48a0f2bab59a557d6d717d2913
+
