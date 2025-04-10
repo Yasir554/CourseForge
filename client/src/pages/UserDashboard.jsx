@@ -1,5 +1,6 @@
 import React from 'react';
 import '../style/index.css';
+import Navbar from '../components/NavBar';
 
 const UserDashboard = ({ userRole }) => {
   // Determine if the user is an instructor or student

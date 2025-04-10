@@ -1,6 +1,6 @@
 import React from 'react'; // Import the main React library
 import { Link, useNavigate, useLocation } from 'react-router-dom'; // Import routing components
-import styles from './style.index.css'; // Import CSS module for styling
+import styles from '../style/index.css'; // Import CSS module for styling
 
 function Navbar() {
   const navigate = useNavigate(); // Hook to programmatically navigate
