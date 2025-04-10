@@ -12,6 +12,7 @@ flask-restful = "*"
 flask-cors = "*"
 werkzeug = "*"
 flask = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 

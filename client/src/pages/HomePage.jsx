@@ -1,5 +1,4 @@
 import React from 'react';
-import '../style/index.css';
 
 const HomePage = ({ courseTitle, userRole }) => {
   const isInstructor = userRole === 'instructor';

@@ -1,55 +1,46 @@
-import React from 'react';
-import '../style/index.css';
+import React from "react";
 
-const UserDashboard = ({ userRole }) => {
-  // Determine if the user is an instructor or student
-  const isInstructor = userRole === 'instructor';
-  
+// Instructor Dashboard Component
+const InstructorDashboard = ({ user }) => {
+  // In a real application, you'll fetch course data, etc. from your backend here
+
+  return (
+    <div className="instructor-dashboard">
+      <h1>Instructor Dashboard</h1>
+      <p>Welcome, {user.name}! Here you can manage your courses and track student progress.</p>
+    </div>
+  );
+};
+
+// Student Dashboard Component
+const StudentDashboard = ({ user }) => {
+  // In a real application, you'll fetch enrolled course data, etc. from your backend here
+
+  return (
+    <div className="student-dashboard">
+      <h1>Student Dashboard</h1>
+      <p>Welcome, {user.name}! Here you can keep track of your enrolled courses and monitor your progress.</p>
+    </div>
+  );
+};
+
+// Main UserDashboard Component
+const UserDashboard = ({ user }) => {
+  if (!user) {
+    return (
+      <div className="dashboard-message">
+        <p>Please log in to view your dashboard.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
-      <div className="sidebar">
-        <div className="brand">
-          <h2>CourseForge</h2>
-          <p>{isInstructor ? 'Instructor' : 'Student'}</p>
-        </div>
-        
-        <div className="sidebar-menu">
-          {/* Menu items */}
-          {isInstructor && (
-            <div className="menu-items">
-              <p>Create Course</p>
-              <p>Delete Course</p>
-            </div>
-          )}
-          
-          {!isInstructor && (
-            <div className="menu-items">
-              <p>All Courses</p>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="main-content">
-        <div className="content-card">
-          <div className="card-header">
-            <h1>{isInstructor ? 'Instructor Dashboard' : 'Student Dashboard'}</h1>
-            <button className="log-out-btn">Log Out</button>
-          </div>
-          
-          {/* Course List */}
-          <div className="course-list">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="course-item">
-                <span>Course title : {num}</span>
-                <button className="continue-btn">continue</button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {user.role === "Instructor" ? (
+        <InstructorDashboard user={user} />
+      ) : (
+        <StudentDashboard user={user} />
+      )}
     </div>
   );
 };

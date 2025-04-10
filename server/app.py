@@ -1,248 +1,135 @@
-from flask import Flask, jsonify, request, make_response, session
+import os
+from flask import Flask, jsonify, request
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_migrate import Migrate
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from functools import wraps
-
 from lib.db.courseforge import db
-from lib.models.Auth import User, InstructorProfile, StudentProfile
+from lib.models.Auth import Instructor, Student
 from lib.models.courses import Course
-from lib.models.Enrollment import Enrollment
 from lib.models.Lesson import Lesson
+from lib.models.Enrollment import Enrollment
 
-# Create the Flask application instance
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    
+    # --- Configuration ---
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///courseforge.db")
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-key")
+    
+    # --- Initialize Extensions ---
+    db.init_app(app)
+    Migrate(app, db)
+    JWTManager(app)
 
-# Configure the app with necessary settings
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///courseforge.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    @app.route("/")
+    def index():
+        return jsonify({"message": "Welcome to CourseForge API!"}), 200
+    
+    # --- Auth Routes ---
+    @app.route("/register", methods=["POST"])
+    def register():
+        data = request.get_json()
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
+        role = data.get("role", "Student")
+        
+        if User.query.filter_by(email=email).first():
+            return jsonify({"msg": "User already exists"}), 400
+        
+        user = User(name=name, email=email, role=role)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({"msg": "User registered successfully"}), 201
 
-# Initialize the database by binding it to our app.
-db.init_app(app)
+    @app.route("/login", methods=["POST"])
+    def login():
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+        user = User.query.filter_by(email=email).first()
+        if not user or not user.check_password(password):
+            return jsonify({"msg": "Bad username or password"}), 401
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token=access_token), 200
 
-# Handle Flask-Migrate for database migrations.
-migrate = Migrate(app, db)
+    # --- Protected Profile Route ---
+    @app.route("/profile", methods=["GET"])
+    @jwt_required()
+    def profile():
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+        return jsonify(user.to_dict()), 200
 
-# Set up Cross-Origin Resource Sharing (CORS)
-CORS(app)
+    # --- Course Routes ---
+    @app.route("/courses", methods=["GET"])
+    @jwt_required()
+    def get_courses():
+        courses = Course.query.all()
+        return jsonify([course.to_dict() for course in courses]), 200
 
-# Login required decorator
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "user_id" not in session:
-            return jsonify({"error": "Unauthorized"}), 401
-        return f(*args, **kwargs)
-    return decorated_function
+    @app.route("/courses", methods=["POST"])
+    @jwt_required()
+    def create_course():
+        data = request.get_json()
+        title = data.get("title")
+        description = data.get("description")
+        instructor_id = get_jwt_identity()  # Assume instructor is the logged-in user
+        course = Course(title=title, description=description, instructor_id=instructor_id)
+        db.session.add(course)
+        db.session.commit()
+        return jsonify(course.to_dict()), 201
 
-# Routes
-# Home Route
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "Welcome to CourseForge API"}), 200
+    @app.route("/courses/<int:course_id>", methods=["GET"])
+    @jwt_required()
+    def get_course(course_id):
+        course = Course.query.get(course_id)
+        if not course:
+            return jsonify({"msg": "Course not found"}), 404
+        return jsonify(course.to_dict()), 200
 
-# Auth Routes
-@app.route("/auth/register", methods=["POST"])
-def register_user():
-    data = request.get_json()
+    # --- Lesson Routes ---
+    @app.route("/courses/<int:course_id>/lessons", methods=["GET"])
+    @jwt_required()
+    def get_lessons(course_id):
+        lessons = Lesson.query.filter_by(course_id=course_id).all()
+        return jsonify([lesson.to_dict() for lesson in lessons]), 200
 
-    # Basic validation
-    if not data.get("email") or not data.get("password"):
-        return jsonify({"error": "Email and password are required"}), 400
+    @app.route("/courses/<int:course_id>/lessons", methods=["POST"])
+    @jwt_required()
+    def create_lesson(course_id):
+        data = request.get_json()
+        title = data.get("title")
+        content = data.get("content")
+        duration = data.get("duration")
+        lesson = Lesson(title=title, content=content, duration=duration, course_id=course_id)
+        db.session.add(lesson)
+        db.session.commit()
+        return jsonify(lesson.to_dict()), 201
 
-    # Ensure email is unique
-    if User.query.filter_by(email=data["email"]).first():
-        return jsonify({"error": "Email already exists"}), 400
-
-    # Create new user
-    new_user = User(**data)
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify(new_user.to_dict()), 201
-
-@app.route("/auth/login", methods=["POST"])
-def login_user():
-    data = request.get_json()
-    user = User.query.filter_by(email=data.get("email")).first()
-    if user and user.check_password(data.get("password")):
-        session["user_id"] = user.id
-        return jsonify({"message": "Login successful", "user": user.to_dict()}), 200
-    return jsonify({"message": "Invalid email or password"}), 401
-
-@app.route("/auth/logout", methods=["DELETE"])
-def logout_user():
-    session.pop("user_id", None)
-    return jsonify({"message": "Logout successful"}), 200
-
-@app.route("/auth/users/<int:user_id>", methods=["GET"])
-def get_user(user_id):
-    user = User.query.get_or_404(user_id)
-    return jsonify(user.to_dict()), 200
-
-@app.route("/auth/users/<int:user_id>", methods=["PUT"])
-def update_user(user_id):
-    data = request.get_json()
-    user = User.query.get_or_404(user_id)
-    for key, value in data.items():
-        setattr(user, key, value)
-    db.session.commit()
-    return jsonify(user.to_dict()), 200
-
-@app.route("/auth/users/<int:user_id>", methods=["DELETE"])
-def delete_user(user_id):
-    user = User.query.get_or_404(user_id)
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({"message": "User deleted"}), 200
-
-@app.route("/auth/instructors", methods=["POST"])
-def create_instructor_profile():
-    data = request.get_json()
-    new_profile = InstructorProfile(**data)
-    db.session.add(new_profile)
-    db.session.commit()
-    return jsonify(new_profile.to_dict()), 201
-
-@app.route("/auth/instructors/<int:user_id>", methods=["GET"])
-def get_instructor_profile(user_id):
-    profile = InstructorProfile.query.filter_by(user_id=user_id).first()
-    if profile:
-        return jsonify(profile.to_dict()), 200
-    return jsonify({"message": "Instructor profile not found"}), 404
-
-@app.route("/auth/students", methods=["POST"])
-def create_student_profile():
-    data = request.get_json()
-    new_profile = StudentProfile(**data)
-    db.session.add(new_profile)
-    db.session.commit()
-    return jsonify(new_profile.to_dict()), 201
-
-@app.route("/auth/students/<int:user_id>", methods=["GET"])
-def get_student_profile(user_id):
-    profile = StudentProfile.query.filter_by(user_id=user_id).first()
-    if profile:
-        return jsonify(profile.to_dict()), 200
-    return jsonify({"message": "Student profile not found"}), 404
-
-# Instructor Dashboard Route
-@app.route("/instructors/<int:user_id>/dashboard", methods=["GET"])
-@login_required
-def instructor_dashboard(user_id):
-    courses = Course.query.filter_by(instructor_id=user_id).all()
-    return jsonify([course.to_dict() for course in courses]), 200
-
-# Student Dashboard Route
-@app.route("/students/<int:user_id>/dashboard", methods=["GET"])
-@login_required
-def student_dashboard(user_id):
-    enrollments = Enrollment.query.filter_by(student_id=user_id).all()
-    courses = [enrollment.course.to_dict() for enrollment in enrollments]
-    return jsonify(courses), 200
-
-# Course Routes
-@app.route("/courses", methods=["GET"])
-def get_courses():
-    courses = Course.query.all()
-    return jsonify([course.to_dict() for course in courses]), 200
-
-@app.route("/courses/<int:course_id>", methods=["GET"])
-def get_course(course_id):
-    course = Course.query.get_or_404(course_id)
-    return jsonify(course.to_dict()), 200
-
-@app.route("/courses", methods=["POST"])
-@login_required
-def create_course():
-    data = request.get_json()
-
-    # Basic validation
-    if not data.get("title") or not data.get("description"):
-        return jsonify({"error": "Title and description are required"}), 400
-
-    new_course = Course(**data)
-    db.session.add(new_course)
-    db.session.commit()
-    return jsonify(new_course.to_dict()), 201
-
-@app.route("/courses/<int:course_id>", methods=["PUT"])
-@login_required
-def update_course(course_id):
-    data = request.get_json()
-    course = Course.query.get_or_404(course_id)
-    for key, value in data.items():
-        setattr(course, key, value)
-    db.session.commit()
-    return jsonify(course.to_dict()), 200
-
-@app.route("/courses/<int:course_id>", methods=["DELETE"])
-@login_required
-def delete_course(course_id):
-    course = Course.query.get_or_404(course_id)
-    db.session.delete(course)
-    db.session.commit()
-    return jsonify({"message": "Course deleted"}), 200
-
-@app.route("/courses/<int:course_id>/enrollments", methods=["POST"])
-def enroll_student(course_id):
-    data = request.get_json()
-    enrollment = Enrollment(course_id=course_id, **data)
-    db.session.add(enrollment)
-    db.session.commit()
-    return jsonify(enrollment.to_dict()), 201
-
-@app.route("/courses/<int:course_id>/enrollments/<int:enrollment_id>", methods=["DELETE"])
-def unenroll_student(course_id, enrollment_id):
-    enrollment = Enrollment.query.get_or_404(enrollment_id)
-    db.session.delete(enrollment)
-    db.session.commit()
-    return jsonify({"message": "Student unenrolled"}), 200
-
-# Lesson Routes
-@app.route("/courses/<int:course_id>/lessons", methods=["GET"])
-def get_lessons(course_id):
-    lessons = Lesson.query.filter_by(course_id=course_id).all()
-    return jsonify([lesson.to_dict() for lesson in lessons]), 200
-
-@app.route("/courses/<int:course_id>/lessons", methods=["POST"])
-@login_required
-def create_lesson(course_id):
-    data = request.get_json()
-    new_lesson = Lesson(course_id=course_id, **data)
-    db.session.add(new_lesson)
-    db.session.commit()
-    return jsonify(new_lesson.to_dict()), 201
-
-@app.route("/courses/<int:course_id>/lessons/<int:lesson_id>", methods=["PUT"])
-@login_required
-def update_lesson(course_id, lesson_id):
-    data = request.get_json()
-    lesson = Lesson.query.get_or_404(lesson_id)
-    for key, value in data.items():
-        setattr(lesson, key, value)
-    db.session.commit()
-    return jsonify(lesson.to_dict()), 200
-
-@app.route("/courses/<int:course_id>/lessons/<int:lesson_id>", methods=["DELETE"])
-@login_required
-def delete_lesson(course_id, lesson_id):
-    lesson = Lesson.query.get_or_404(lesson_id)
-    db.session.delete(lesson)
-    db.session.commit()
-    return jsonify({"message": "Lesson deleted"}), 200
-
-# Add Student by Email to Course
-@app.route("/courses/<int:course_id>/add_student", methods=["POST"])
-@login_required
-def add_student_by_email(course_id):
-    data = request.get_json()
-    student = User.query.filter_by(email=data["email"]).first()
-    if student:
-        enrollment = Enrollment(course_id=course_id, student_id=student.id)
+    # --- Enrollment Route ---
+    @app.route("/enroll", methods=["POST"])
+    @jwt_required()
+    def enroll_course():
+        data = request.get_json()
+        course_id = data.get("course_id")
+        student_id = get_jwt_identity()
+        progress = data.get("progress", 0)
+        
+        # Prevent duplicate enrollments
+        if Enrollment.query.filter_by(course_id=course_id, student_id=student_id).first():
+            return jsonify({"msg": "Already enrolled"}), 400
+        
+        enrollment = Enrollment(course_id=course_id, student_id=student_id, progress=progress)
         db.session.add(enrollment)
         db.session.commit()
-        return jsonify({"message": "Student added successfully"}), 201
-    return jsonify({"message": "Student not found"}), 404
+        return jsonify(enrollment.to_dict()), 201
+
+    return app
 
 if __name__ == "__main__":
-    app.run(port=5555, debug=True)
+    app = create_app()
+    app.run(debug=True)
