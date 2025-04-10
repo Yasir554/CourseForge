@@ -24,44 +24,59 @@ def create_app():
     @app.route("/")
     def index():
         return jsonify({"message": "Welcome to CourseForge API!"}), 200
-    
+
     # --- Auth Routes ---
     @app.route("/register", methods=["POST"])
     def register():
         data = request.get_json()
-        name = data.get("name")
+        username = data.get("username")
         email = data.get("email")
         password = data.get("password")
         role = data.get("role", "Student")
-        
-        if User.query.filter_by(email=email).first():
-            return jsonify({"msg": "User already exists"}), 400
-        
-        user = User(name=name, email=email, role=role)
+
+        if role == "Instructor":
+            if Instructor.query.filter_by(email=email).first():
+                return jsonify({"msg": "Instructor already exists"}), 400
+            user = Instructor(username=username, email=email)
+        else:
+            if Student.query.filter_by(email=email).first():
+                return jsonify({"msg": "Student already exists"}), 400
+            user = Student(username=username, email=email)
+
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        return jsonify({"msg": "User registered successfully"}), 201
+        return jsonify({"msg": f"{role} registered successfully"}), 201
 
     @app.route("/login", methods=["POST"])
     def login():
         data = request.get_json()
         email = data.get("email")
         password = data.get("password")
-        user = User.query.filter_by(email=email).first()
+        role = data.get("role", "Student")
+
+        if role == "Instructor":
+            user = Instructor.query.filter_by(email=email).first()
+        else:
+            user = Student.query.filter_by(email=email).first()
+
         if not user or not user.check_password(password):
-            return jsonify({"msg": "Bad username or password"}), 401
-        access_token = create_access_token(identity=user.id)
+            return jsonify({"msg": "Invalid email or password"}), 401
+
+        access_token = create_access_token(identity={"id": user.id, "role": role})
         return jsonify(access_token=access_token), 200
 
-    # --- Protected Profile Route ---
     @app.route("/profile", methods=["GET"])
     @jwt_required()
     def profile():
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        identity = get_jwt_identity()
+        user_id = identity["id"]
+        role = identity["role"]
+
+        user = Instructor.query.get(user_id) if role == "Instructor" else Student.query.get(user_id)
         if not user:
             return jsonify({"msg": "User not found"}), 404
+
         return jsonify(user.to_dict()), 200
 
     # --- Course Routes ---
@@ -75,9 +90,15 @@ def create_app():
     @jwt_required()
     def create_course():
         data = request.get_json()
+        identity = get_jwt_identity()
+
+        if identity["role"] != "Instructor":
+            return jsonify({"msg": "Only instructors can create courses"}), 403
+
         title = data.get("title")
         description = data.get("description")
-        instructor_id = get_jwt_identity()  # Assume instructor is the logged-in user
+        instructor_id = identity["id"]
+
         course = Course(title=title, description=description, instructor_id=instructor_id)
         db.session.add(course)
         db.session.commit()
@@ -102,9 +123,15 @@ def create_app():
     @jwt_required()
     def create_lesson(course_id):
         data = request.get_json()
+        identity = get_jwt_identity()
+
+        if identity["role"] != "Instructor":
+            return jsonify({"msg": "Only instructors can add lessons"}), 403
+
         title = data.get("title")
         content = data.get("content")
         duration = data.get("duration")
+
         lesson = Lesson(title=title, content=content, duration=duration, course_id=course_id)
         db.session.add(lesson)
         db.session.commit()
@@ -115,14 +142,18 @@ def create_app():
     @jwt_required()
     def enroll_course():
         data = request.get_json()
+        identity = get_jwt_identity()
+
+        if identity["role"] != "Student":
+            return jsonify({"msg": "Only students can enroll"}), 403
+
+        student_id = identity["id"]
         course_id = data.get("course_id")
-        student_id = get_jwt_identity()
         progress = data.get("progress", 0)
-        
-        # Prevent duplicate enrollments
+
         if Enrollment.query.filter_by(course_id=course_id, student_id=student_id).first():
             return jsonify({"msg": "Already enrolled"}), 400
-        
+
         enrollment = Enrollment(course_id=course_id, student_id=student_id, progress=progress)
         db.session.add(enrollment)
         db.session.commit()
@@ -133,3 +164,4 @@ def create_app():
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True)
+
