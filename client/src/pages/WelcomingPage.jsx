@@ -3,20 +3,23 @@ import { Link } from "react-router-dom";
 
 const WelcomingPage = () => {
   return (
-    <div className="welcoming-page" style={{ textAlign: "center", padding: "2rem" }}>
-      <h1 className="CourseForge">CourseForge</h1>
-      <h2 className="welcoming-message">
-        Welcome to
-        <br />
-        CourseForge
-      </h2>
-      <Link to="/login">
-        <button className="login-btn">Login</button>
-      </Link>
-      <p className="or">or</p>
-      <Link to="/register">
-        <button className="register-btn">Register</button>
-      </Link>
+    <div className="container">
+      <div className="card">
+        <h1>CourseForge</h1>
+        <h2>
+          Welcome to
+          <br />
+          CourseForge
+        </h2>
+        <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+          <Link to="/login">
+            <button className="btn">Login</button>
+          </Link>
+          <Link to="/register">
+            <button className="btn">Register</button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

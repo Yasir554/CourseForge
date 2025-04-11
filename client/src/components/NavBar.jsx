@@ -13,8 +13,8 @@ function Navbar() {
   };
 
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <nav>
+      <div>
         <Link
           to={
             userRole === "Instructor"
@@ -23,7 +23,7 @@ function Navbar() {
               ? "/student/dashboard"
               : "/"
           }
-          style={{ fontWeight: "bold", fontSize: "1.2rem" }}
+          className="nav-brand"
         >
           CourseForge
         </Link>
@@ -31,28 +31,28 @@ function Navbar() {
         <div>
           {userRole && (
             <>
-              <button onClick={handleLogout} style={{ marginRight: "1rem" }}>
+              <button onClick={handleLogout} className="btn">
                 Log Out
               </button>
               {userRole === "Instructor" && (
                 <>
-                  <Link to="/instructor/dashboard" style={{ marginRight: "1rem" }}>
+                  <Link to="/instructor/dashboard" className="nav-link">
                     Dashboard
                   </Link>
-                  <Link to="/instructor/courses/new" style={{ marginRight: "1rem" }}>
+                  <Link to="/instructor/courses/new" className="nav-link">
                     New Course
                   </Link>
-                  <Link to="/instructor/lessons/new" style={{ marginRight: "1rem" }}>
+                  <Link to="/instructor/lessons/new" className="nav-link">
                     New Lesson
                   </Link>
                 </>
               )}
               {userRole === "Student" && (
                 <>
-                  <Link to="/student/dashboard" style={{ marginRight: "1rem" }}>
+                  <Link to="/student/dashboard" className="nav-link">
                     Dashboard
                   </Link>
-                  <Link to="/student/courses" style={{ marginRight: "1rem" }}>
+                  <Link to="/student/courses" className="nav-link">
                     Courses
                   </Link>
                 </>
@@ -62,9 +62,9 @@ function Navbar() {
           {!userRole && (
             <>
               {location.pathname === "/login" ? (
-                <Link to="/register">Register</Link>
+                <Link to="/register" className="nav-link">Register</Link>
               ) : location.pathname === "/register" ? (
-                <Link to="/login">Log In</Link>
+                <Link to="/login" className="nav-link">Log In</Link>
               ) : null}
             </>
           )}
