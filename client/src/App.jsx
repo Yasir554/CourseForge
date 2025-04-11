@@ -1,69 +1,44 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import NavBar from './components/NavBar';
-import ProtectedRoute from './components/ProtectedRoute';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/NavBar";
+import WelcomingPage from "./pages/WelcomingPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import UserDashboard from "./pages/UserDashboard";
+import CoursePage from "./pages/coursePage";
+import LessonPage from "./pages/LessonsPage";
+import EditingLesson from "./pages/EditingLesson";
+import EditingCourses from "./pages/EditingCourses";
 
-import WelcomingPage    from './pages/WelcomingPage';
-import LoginPage        from './pages/LoginPage';
-import RegisterPage     from './pages/RegisterPage';
-import HomePage         from './pages/HomePage';
-import LessonsPage      from './pages/LessonsPage';
-import UserDashboard    from './pages/UserDashboard';
-import EditingCourses   from './pages/EditingCourses';
-import EditingLesson    from './pages/EditingLesson';
-
-export default function App() {
+function App() {
   return (
-    <AuthProvider>
-      <NavBar />
-      <main>
-        <Routes>
-          <Route path="/"                element={<WelcomingPage />} />
-          <Route path="/login"           element={<LoginPage />} />
-          <Route path="/register"        element={<RegisterPage />} />
+    <Router>
+      <div>
+        <Navbar />
+        <main>
+          <Routes>
+            <Route path="/" element={<WelcomingPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/home"            element={<HomePage />} />
-          <Route path="/courses/:id"     element={<LessonsPage />} />
+            {/* Dashboard */}
+            <Route path="/student/dashboard" element={<UserDashboard />} />
+            <Route path="/instructor/dashboard" element={<UserDashboard />} />
 
-          <Route path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <UserDashboard />
-              </ProtectedRoute>
-            }
-          />
+            {/* Courses & Lessons */}
+            <Route path="/courses/:courseId" element={<CoursePage />} />
+            <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
 
-          <Route path="/courses/new"
-            element={
-              <ProtectedRoute role="Instructor">
-                <EditingCourses />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/courses/:id/edit"
-            element={
-              <ProtectedRoute role="Instructor">
-                <EditingCourses />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/courses/:courseId/lessons/new"
-            element={
-              <ProtectedRoute role="Instructor">
-                <EditingLesson />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/courses/:courseId/lessons/:lessonId/edit"
-            element={
-              <ProtectedRoute role="Instructor">
-                <EditingLesson />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
-    </AuthProvider>
+            {/* Editing routes for instructors */}
+            <Route path="/instructor/lessons/new" element={<EditingLesson />} />
+            <Route path="/instructor/lessons/:id/edit" element={<EditingLesson />} />
+            <Route path="/instructor/courses/new" element={<EditingCourses />} />
+            <Route path="/instructor/courses/:id/edit" element={<EditingCourses />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
+
+export default App;

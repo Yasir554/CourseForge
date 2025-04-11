@@ -1,177 +1,235 @@
-import os
-from flask import Flask, jsonify, request, session, redirect, url_for
+from flask import Flask, request, jsonify, session
 from flask_migrate import Migrate
+from flask_cors import CORS
 from lib.db.courseforge import db
-from lib.models.Auth import Instructor, Student
+from lib.models.Auth import User, Instructor, Student
 from lib.models.courses import Course
-from lib.models.Lesson import Lesson
 from lib.models.Enrollment import Enrollment
+from lib.models.Lesson import Lesson
 
-def create_app():
-    app = Flask(__name__)
+app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+
+# Required for session support; use a secure secret key in production.
+app.secret_key = "super_secret_key_for_sessions"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///courseforge.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+Migrate(app, db)
+
+# -------------------------
+# User Routes
+# -------------------------
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Welcome to CourseForge API!"}), 200
+
+@app.route("/register", methods=["POST"])
+def register_user():
+    data = request.get_json()
+    role = data.get("role")
     
-    # --- Configuration ---
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///courseforge.db")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "super-secret-key")  # For session management
-    
-    # --- Initialize Extensions ---
-    db.init_app(app)
-    Migrate(app, db)
-    
-    @app.route("/")
-    def index():
-        return jsonify({"message": "Welcome to CourseForge API!"}), 200
+    if role == "Instructor":
+        user = Instructor(username=data["username"], email=data["email"])
+    elif role == "Student":
+        user = Student(username=data["username"], email=data["email"])
+    else:
+        return jsonify({"error": "Invalid role"}), 400
 
-    # --- Auth Routes ---
-    @app.route("/register", methods=["POST"])
-    def register():
-        data = request.get_json()
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
-        role = data.get("role", "Student")
+    user.set_password(data["password"])
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(user.to_dict()), 201
 
-        if role == "Instructor":
-            if Instructor.query.filter_by(email=email).first():
-                return jsonify({"msg": "Instructor already exists"}), 400
-            user = Instructor(username=username, email=email)
-        else:
-            if Student.query.filter_by(email=email).first():
-                return jsonify({"msg": "Student already exists"}), 400
-            user = Student(username=username, email=email)
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    user = User.query.filter_by(email=data["email"]).first()
 
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        return jsonify({"msg": f"{role} registered successfully"}), 201
-
-    @app.route("/login", methods=["POST"])
-    def login():
-        data = request.get_json()
-        email = data.get("email")
-        password = data.get("password")
-        role = data.get("role", "Student")
-
-        if role == "Instructor":
-            user = Instructor.query.filter_by(email=email).first()
-        else:
-            user = Student.query.filter_by(email=email).first()
-
-        if not user or not user.check_password(password):
-            return jsonify({"msg": "Invalid email or password"}), 401
-
-        # Store user data in session
+    if user and user.check_password(data["password"]):
         session["user_id"] = user.id
-        session["role"] = role
-
-        return jsonify({"msg": f"Logged in as {role}"}), 200
-
-    @app.route("/logout", methods=["POST"])
-    def logout():
-        session.clear()  # Clear the session data on logout
-        return jsonify({"msg": "Logged out successfully"}), 200
-
-    @app.route("/profile", methods=["GET"])
-    def profile():
-        # Check if user is logged in
-        if "user_id" not in session:
-            return jsonify({"msg": "Unauthorized"}), 401
-
-        user_id = session["user_id"]
-        role = session["role"]
-
-        user = Instructor.query.get(user_id) if role == "Instructor" else Student.query.get(user_id)
-        if not user:
-            return jsonify({"msg": "User not found"}), 404
-
+        # Store the role for potential role-based handling.
+        session["role"] = "Instructor" if isinstance(user, Instructor) else "Student"
         return jsonify(user.to_dict()), 200
 
-    # --- Course Routes ---
-    @app.route("/courses", methods=["GET"])
-    def get_courses():
-        # Check if user is logged in
-        if "user_id" not in session:
-            return jsonify({"msg": "Unauthorized"}), 401
+    return jsonify({"error": "Invalid credentials"}), 401
 
-        courses = Course.query.all()
-        return jsonify([course.to_dict() for course in courses]), 200
+@app.route("/check-auth", methods=["GET"])
+def check_auth():
+    user_id = session.get("user_id")
+    if user_id:
+        user = User.query.get(user_id)
+        if user:
+            return jsonify(user.to_dict()), 200
+    return jsonify({"error": "Not authenticated"}), 401
 
-    @app.route("/courses", methods=["POST"])
-    def create_course():
-        # Check if user is logged in and is an instructor
-        if "user_id" not in session or session["role"] != "Instructor":
-            return jsonify({"msg": "Only instructors can create courses"}), 403
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return jsonify({"message": "Logged out"}), 200
 
-        data = request.get_json()
-        title = data.get("title")
-        description = data.get("description")
-        instructor_id = session["user_id"]
+@app.route("/me", methods=["GET"])
+def get_current_user():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
 
-        course = Course(title=title, description=description, instructor_id=instructor_id)
-        db.session.add(course)
-        db.session.commit()
-        return jsonify(course.to_dict()), 201
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
-    @app.route("/courses/<int:course_id>", methods=["GET"])
-    def get_course(course_id):
-        # Check if user is logged in
-        if "user_id" not in session:
-            return jsonify({"msg": "Unauthorized"}), 401
+    return jsonify(user.to_dict()), 200
 
-        course = Course.query.get(course_id)
-        if not course:
-            return jsonify({"msg": "Course not found"}), 404
-        return jsonify(course.to_dict()), 200
+# -------------------------
+# Course Routes
+# -------------------------
 
-    # --- Lesson Routes ---
-    @app.route("/courses/<int:course_id>/lessons", methods=["GET"])
-    def get_lessons(course_id):
-        # Check if user is logged in
-        if "user_id" not in session:
-            return jsonify({"msg": "Unauthorized"}), 401
+@app.route("/courses", methods=["GET"])
+def get_courses():
+    # Example of protecting a route: ensure user is logged in.
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
 
-        lessons = Lesson.query.filter_by(course_id=course_id).all()
-        return jsonify([lesson.to_dict() for lesson in lessons]), 200
+    courses = Course.query.all()
+    return jsonify([c.to_dict() for c in courses])
 
-    @app.route("/courses/<int:course_id>/lessons", methods=["POST"])
-    def create_lesson(course_id):
-        # Check if user is logged in and is an instructor
-        if "user_id" not in session or session["role"] != "Instructor":
-            return jsonify({"msg": "Only instructors can add lessons"}), 403
+@app.route("/courses", methods=["POST"])
+def create_course():
+    # Protect route: check for authenticated user
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
 
-        data = request.get_json()
-        title = data.get("title")
-        content = data.get("content")
-        duration = data.get("duration")
+    data = request.get_json()
+    # Optionally, enforce that only Instructors can create courses.
+    if session.get("role") != "Instructor":
+        return jsonify({"error": "Only instructors can create courses"}), 403
 
-        lesson = Lesson(title=title, content=content, duration=duration, course_id=course_id)
-        db.session.add(lesson)
-        db.session.commit()
-        return jsonify(lesson.to_dict()), 201
+    course = Course(
+        title=data["title"],
+        description=data.get("description"),
+        instructor_id=session["user_id"]  # Use current user's ID as instructor_id
+    )
+    db.session.add(course)
+    db.session.commit()
+    return jsonify(course.to_dict()), 201
 
-    # --- Enrollment Route ---
-    @app.route("/enroll", methods=["POST"])
-    def enroll_course():
-        # Check if user is logged in and is a student
-        if "user_id" not in session or session["role"] != "Student":
-            return jsonify({"msg": "Only students can enroll"}), 403
+@app.route("/courses/<int:id>", methods=["GET"])
+def get_course(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
 
-        data = request.get_json()
-        student_id = session["user_id"]
-        course_id = data.get("course_id")
-        progress = data.get("progress", 0)
+    course = Course.query.get_or_404(id)
+    return jsonify(course.to_dict())
 
-        if Enrollment.query.filter_by(course_id=course_id, student_id=student_id).first():
-            return jsonify({"msg": "Already enrolled"}), 400
+@app.route("/courses/<int:id>", methods=["PUT"])
+def update_course(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
 
-        enrollment = Enrollment(course_id=course_id, student_id=student_id, progress=progress)
-        db.session.add(enrollment)
-        db.session.commit()
-        return jsonify(enrollment.to_dict()), 201
+    data = request.get_json()
+    course = Course.query.get_or_404(id)
+    # Optionally, verify current user is the course instructor before allowing an update.
+    course.title = data.get("title", course.title)
+    course.description = data.get("description", course.description)
+    db.session.commit()
+    return jsonify(course.to_dict())
 
-    return app
+@app.route("/courses/<int:id>", methods=["DELETE"])
+def delete_course(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    course = Course.query.get_or_404(id)
+    # Optionally, verify that the logged in user is allowed to delete the course.
+    db.session.delete(course)
+    db.session.commit()
+    return jsonify({"message": "Deleted"}), 204
+
+# -------------------------
+# Enrollment Routes
+# -------------------------
+
+@app.route("/enrollments", methods=["POST"])
+def enroll_student():
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    enrollment = Enrollment(
+        course_id=data["course_id"],
+        student_id=data["student_id"]
+    )
+    db.session.add(enrollment)
+    db.session.commit()
+    return jsonify(enrollment.to_dict()), 201
+
+@app.route("/enrollments/<int:student_id>", methods=["GET"])
+def get_enrollments(student_id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    enrollments = Enrollment.query.filter_by(student_id=student_id).all()
+    return jsonify([e.to_dict() for e in enrollments])
+
+# -------------------------
+# Lesson Routes
+# -------------------------
+
+@app.route("/lessons", methods=["POST"])
+def create_lesson():
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    lesson = Lesson(
+        title=data["title"],
+        content=data.get("content"),
+        duration=data.get("duration"),
+        course_id=data["course_id"]
+    )
+    db.session.add(lesson)
+    db.session.commit()
+    return jsonify(lesson.to_dict()), 201
+
+@app.route("/lessons/<int:course_id>", methods=["GET"])
+def get_lessons(course_id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    lessons = Lesson.query.filter_by(course_id=course_id).all()
+    return jsonify([l.to_dict() for l in lessons])
+
+@app.route("/lessons/<int:id>", methods=["PUT"])
+def update_lesson(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    lesson = Lesson.query.get_or_404(id)
+    lesson.title = data.get("title", lesson.title)
+    lesson.content = data.get("content", lesson.content)
+    lesson.duration = data.get("duration", lesson.duration)
+    db.session.commit()
+    return jsonify(lesson.to_dict())
+
+@app.route("/lessons/<int:id>", methods=["DELETE"])
+def delete_lesson(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    lesson = Lesson.query.get_or_404(id)
+    db.session.delete(lesson)
+    db.session.commit()
+    return jsonify({"message": "Deleted"}), 204
+
+
+
+# -------------------------
+# Run Server
+# -------------------------
 
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=True)

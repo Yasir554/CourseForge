@@ -1,9 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 // Instructor Dashboard Component
 const InstructorDashboard = ({ user }) => {
-  // In a real application, you'll fetch course data, etc. from your backend here
-
   return (
     <div className="instructor-dashboard">
       <h1>Instructor Dashboard</h1>
@@ -14,8 +12,6 @@ const InstructorDashboard = ({ user }) => {
 
 // Student Dashboard Component
 const StudentDashboard = ({ user }) => {
-  // In a real application, you'll fetch enrolled course data, etc. from your backend here
-
   return (
     <div className="student-dashboard">
       <h1>Student Dashboard</h1>
@@ -25,7 +21,19 @@ const StudentDashboard = ({ user }) => {
 };
 
 // Main UserDashboard Component
-const UserDashboard = ({ user }) => {
+const UserDashboard = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/me", { credentials: "include" })
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error("Failed to fetch user");
+      })
+      .then((data) => setUser(data))
+      .catch((error) => console.error("Error fetching user:", error));
+  }, []);
+
   if (!user) {
     return (
       <div className="dashboard-message">
