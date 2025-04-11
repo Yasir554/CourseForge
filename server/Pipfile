@@ -9,10 +9,10 @@ faker = "*"
 flask-migrate = "*"
 sqlalchemy-serializer = "*"
 flask-restful = "*"
-flask-cors = "*"
 werkzeug = "*"
 flask = "*"
 flask-jwt-extended = "*"
+flask-cors = "*"
 
 [dev-packages]
 

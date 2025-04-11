@@ -9,23 +9,28 @@ from lib.models.Lesson import Lesson
 
 app = Flask(__name__)
 
-# Configure session cookie settings for cross-site use in local development.
-app.config["SESSION_COOKIE_SAMESITE"] = "None"
-app.config["SESSION_COOKIE_SECURE"] = False  # Use False for HTTP (local) and True for HTTPS
-app.secret_key = "super_secret_key_for_sessions"
+# =========================
+# ✅ Configuration
+# =========================
+app.config["SECRET_KEY"] = "super_secret_key_for_sessions"
 
-# Database configuration
+# Session config
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = False  # Use True if deploying over HTTPS
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+# Database config
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///courseforge.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 Migrate(app, db)
 
-# Configure CORS to allow requests from your React frontend.
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
+# CORS config for frontend
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
 
-# -------------------------
-# User Routes
-# -------------------------
+# =========================
+# ✅ User Routes
+# =========================
 
 @app.route("/", methods=["GET"])
 def home():
@@ -55,7 +60,6 @@ def login():
 
     if user and user.check_password(data["password"]):
         session["user_id"] = user.id
-        # Store role for potential role-based handling.
         session["role"] = "Instructor" if isinstance(user, Instructor) else "Student"
         return jsonify(user.to_dict()), 200
 
@@ -87,10 +91,9 @@ def get_current_user():
 
     return jsonify(user.to_dict()), 200
 
-
-# -------------------------
-# Course Routes
-# -------------------------
+# =========================
+# ✅ Course Routes
+# =========================
 
 @app.route("/courses", methods=["GET"])
 def get_courses():
@@ -105,10 +108,10 @@ def create_course():
     if "user_id" not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
-    data = request.get_json()
     if session.get("role") != "Instructor":
         return jsonify({"error": "Only instructors can create courses"}), 403
 
+    data = request.get_json()
     course = Course(
         title=data["title"],
         description=data.get("description"),
@@ -148,9 +151,9 @@ def delete_course(id):
     db.session.commit()
     return jsonify({"message": "Deleted"}), 204
 
-# -------------------------
-# Enrollment Routes
-# -------------------------
+# =========================
+# ✅ Enrollment Routes
+# =========================
 
 @app.route("/enrollments", methods=["POST"])
 def enroll_student():
@@ -174,9 +177,9 @@ def get_enrollments(student_id):
     enrollments = Enrollment.query.filter_by(student_id=student_id).all()
     return jsonify([e.to_dict() for e in enrollments])
 
-# -------------------------
-# Lesson Routes
-# -------------------------
+# =========================
+# ✅ Lesson Routes
+# =========================
 
 @app.route("/lessons", methods=["POST"])
 def create_lesson():
@@ -225,9 +228,9 @@ def delete_lesson(id):
     db.session.commit()
     return jsonify({"message": "Deleted"}), 204
 
-# -------------------------
-# Run Server
-# -------------------------
+# =========================
+# ✅ Run Server
+# =========================
 
 if __name__ == "__main__":
     app.run(debug=True)
