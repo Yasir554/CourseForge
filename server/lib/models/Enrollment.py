@@ -1,41 +1,23 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_serializer import SerializerMixin 
-from sqlalchemy.orm import validates
-from lib.models.courses import Course
+# server/lib/models/Enrollment.py
 from lib.db.courseforge import db
-from datetime import datetime , timezone
 
-
-# Enrollment model
-
-class Enrollment(db.Model, SerializerMixin):
+class Enrollment(db.Model):
     __tablename__ = 'enrollments'
-
-    # Serialization
-    serialize_rules = ('-user.enrollments', '-course.enrollments',)  
-
-
+    
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    timestamp = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('instructors.id'), nullable=False)
 
     # Relationships
-    user = db.relationship('User', back_populates='enrollments')
     course = db.relationship('Course', back_populates='enrollments')
-
+    student = db.relationship('Student', back_populates='enrollments')
+    instructor = db.relationship('Instructor', back_populates='enrollments')
     
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
             'course_id': self.course_id,
-            'timestamp': self.timestamp.isoformat()
+            'student_id': self.student_id,
+            'instructor_id': self.instructor_id
         }
-    
-    def __repr__(self):
-        return f"<Enrollment id={self.id} user_id={self.user_id} course_id={self.course_id}>"
-    
-

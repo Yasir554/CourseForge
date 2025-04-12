@@ -1,147 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-const LessonPage = ({ courseId, lessonId, isInstructor }) => {
-  const [lessonData, setLessonData] = useState({
-    title: '',
-    description: '',
-    modules: '',
-    assessment: '',
-    conclusion: ''
-  });
+const LessonPage = ({ isInstructorProp = false }) => {
+  // Retrieve lessonId from URL
+  const { lessonId } = useParams();
+  const navigate = useNavigate();
+
+  // Local state for content and edit mode
+  const [content, setContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [tempData, setTempData] = useState({});
+  const [loading, setLoading] = useState(false);
 
+  // Detect if the user is instructor (or fallback to the passed prop)
+  const storedRole = localStorage.getItem("userRole");
+  const isInstructor = storedRole === "Instructor" || isInstructorProp;
+
+  // Fetch lesson data on mount (if editing/viewing existing lesson)
   useEffect(() => {
-    const fetchLessonData = async () => {
-      try {
-        const response = await axios.get(`/courses/${courseId}/lessons/${lessonId}`);
-        setLessonData(response.data);
-        setTempData(response.data);  // Store a copy of the data for editing
-      } catch (err) {
-        console.error('Error fetching lesson data:', err);
-        alert('Failed to fetch lesson data');
-      }
-    };
+    if (lessonId && !isEditing) {
+      setLoading(true);
+      fetch(`http://127.0.0.1:5000/lessons/${lessonId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setContent(data.content); // expecting { content: "..." }
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching lesson:", error);
+          setLoading(false);
+        });
+    }
+  }, [lessonId, isEditing]);
 
-    fetchLessonData();
-  }, [courseId, lessonId]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setTempData({ ...tempData, [name]: value });
-  };
-
-  const handleSave = async () => {
-    try {
-      await axios.put(`/courses/${courseId}/lessons/${lessonId}`, tempData);
-      setLessonData(tempData); // Update the lessonData with the edited data
-      setIsEditing(false); // Switch off editing mode
-      alert('Lesson saved successfully');
-    } catch (err) {
-      console.error('Error saving lesson data:', err);
-      alert('Failed to save lesson data');
+  const handleContentChange = (e) => {
+    if (isInstructor) {
+      setContent(e.target.innerHTML);
     }
   };
 
-  const handleCancel = () => {
-    setTempData(lessonData); // Discard changes
-    setIsEditing(false);
+  const handleSave = async () => {
+    const method = lessonId ? "PUT" : "POST";
+    const url = lessonId ? `http://127.0.0.1:5000/lessons/${lessonId}` : "http://127.0.0.1:5000/lessons";
+    const payload = { content };
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to save lesson");
+      }
+      const data = await response.json();
+      console.log("Lesson saved successfully:", data);
+      setIsEditing(false);
+      // Optionally, navigate or update state
+    } catch (error) {
+      console.error("Error saving lesson:", error);
+    }
   };
 
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <div className="lesson-page">
-      <h1>{lessonData.title}</h1>
-      <h3>{lessonData.description}</h3>
-      
-      {/* Displaying modules */}
-      <div>
-        <h4>Modules</h4>
-        <ul>
-          {lessonData.modules.split(',').map((module, index) => (
-            <li key={index}>{module.trim()}</li>
-          ))}
-        </ul>
+    <div className="lesson-page" style={{ padding: "2rem" }}>
+      <h1>Lesson Details</h1>
+      <p>
+        {isInstructor
+          ? isEditing
+            ? "Edit mode: make changes to the lesson content below."
+            : "Viewing mode: click 'Edit' to modify the lesson." 
+          : "Lesson content:"}
+      </p>
+      <div
+        className="whiteboard"
+        contentEditable={isInstructor && isEditing}
+        suppressContentEditableWarning={true}
+        onInput={handleContentChange}
+      >
+        <div dangerouslySetInnerHTML={{ __html: content }} />
       </div>
-
-      {/* Displaying assessment */}
-      <div>
-        <h4>Assessment</h4>
-        <ul>
-          {lessonData.assessment.split(',').map((assess, index) => (
-            <li key={index}>{assess.trim()}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Displaying conclusion */}
-      <div>
-        <h4>Conclusion</h4>
-        <ul>
-          {lessonData.conclusion.split(',').map((concl, index) => (
-            <li key={index}>{concl.trim()}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Editable content for the instructor */}
-      {isInstructor && (
+      {isInstructor && !isEditing && (
+        <button onClick={() => setIsEditing(true)}>Edit</button>
+      )}
+      {isInstructor && isEditing && (
         <div>
-          <button onClick={() => setIsEditing(true)}>Edit Lesson</button>
-
-          {isEditing && (
-            <div>
-              <textarea
-                name="title"
-                value={tempData.title}
-                onChange={handleChange}
-                placeholder="Edit title"
-              />
-              <textarea
-                name="description"
-                value={tempData.description}
-                onChange={handleChange}
-                placeholder="Edit description"
-              />
-              <textarea
-                name="modules"
-                value={tempData.modules}
-                onChange={handleChange}
-                placeholder="Edit modules (comma separated)"
-              />
-              <textarea
-                name="assessment"
-                value={tempData.assessment}
-                onChange={handleChange}
-                placeholder="Edit assessment (comma separated)"
-              />
-              <textarea
-                name="conclusion"
-                value={tempData.conclusion}
-                onChange={handleChange}
-                placeholder="Edit conclusion (comma separated)"
-              />
-
-              <button onClick={handleSave}>Save</button>
-              <button onClick={handleCancel}>Discard Changes</button>
-            </div>
-          )}
+          <button onClick={handleSave}>Save Lesson</button>
+          <button onClick={() => setIsEditing(false)}>Cancel</button>
         </div>
       )}
-
-      {/* For students, just read the lesson */}
-      {!isInstructor && (
-        <div>
-          <h4>Module Notes</h4>
-          <p>{lessonData.modules}</p>
-
-          <h4>Assessment</h4>
-          <p>{lessonData.assessment}</p>
-
-          <h4>Conclusion</h4>
-          <p>{lessonData.conclusion}</p>
-        </div>
-      )}
+      {/* Optionally, add a button to navigate back to course or dashboard */}
+      <button onClick={() => navigate(-1)} style={{ marginTop: "1rem" }}>
+        Back
+      </button>
     </div>
   );
 };

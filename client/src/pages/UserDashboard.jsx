@@ -1,56 +1,63 @@
-import React from 'react';
-import '../style/index.css';
-import Navbar from '../components/NavBar';
+import React, { useEffect, useState } from "react";
 
-const UserDashboard = ({ userRole }) => {
-  // Determine if the user is an instructor or student
-  const isInstructor = userRole === 'instructor';
-  
+const UserDashboard = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/me", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Not logged in");
+        return res.json();
+      })
+      .then((data) => {
+        setUser(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setUser(null);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  if (!user) return <div>Please log in to view your dashboard.</div>;
+
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <div className="sidebar">
-        <div className="brand">
-          <h2>CourseForge</h2>
-          <p>{isInstructor ? 'Instructor' : 'Student'}</p>
-        </div>
-        
-        <div className="sidebar-menu">
-          {/* Menu items */}
-          {isInstructor && (
-            <div className="menu-items">
-              <p>Create Course</p>
-              <p>Delete Course</p>
-            </div>
-          )}
-          
-          {!isInstructor && (
-            <div className="menu-items">
-              <p>All Courses</p>
-            </div>
+    <div>
+      <h2>Welcome, {user.username}!</h2>
+
+      {user.role === "Instructor" ? (
+        <div>
+          <h3>Your Courses (Instructor View)</h3>
+          {user.courses.length > 0 ? (
+            <ul>
+              {user.courses.map((course) => (
+                <li key={course.id}>{course.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>You haven't created any courses yet.</p>
           )}
         </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="main-content">
-        <div className="content-card">
-          <div className="card-header">
-            <h1>{isInstructor ? 'Instructor Dashboard' : 'Student Dashboard'}</h1>
-            <button className="log-out-btn">Log Out</button>
-          </div>
-          
-          {/* Course List */}
-          <div className="course-list">
-            {[1, 2, 3, 4].map((num) => (
-              <div key={num} className="course-item">
-                <span>Course title : {num}</span>
-                <button className="continue-btn">continue</button>
-              </div>
-            ))}
-          </div>
+      ) : (
+        <div>
+          <h3>Your Enrolled Courses (Student View)</h3>
+          {user.courses.length > 0 ? (
+            <ul>
+              {user.courses.map((course) => (
+                <li key={course.id}>{course.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>You are not enrolled in any courses yet.</p>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };
