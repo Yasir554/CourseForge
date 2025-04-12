@@ -5,7 +5,7 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/me", {
+    fetch("http://127.0.0.1:5000/me", {
       credentials: "include",
     })
       .then((res) => {
@@ -30,15 +30,32 @@ const UserDashboard = () => {
   return (
     <div>
       <h2>Welcome, {user.username}!</h2>
+
       {user.role === "Instructor" ? (
         <div>
-          <p>You are an instructor. Manage your courses below:</p>
-          {/* Add instructor content */}
+          <h3>Your Courses (Instructor View)</h3>
+          {user.courses.length > 0 ? (
+            <ul>
+              {user.courses.map((course) => (
+                <li key={course.id}>{course.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>You haven't created any courses yet.</p>
+          )}
         </div>
       ) : (
         <div>
-          <p>You are a student. View your enrolled courses below:</p>
-          {/* Add student content */}
+          <h3>Your Enrolled Courses (Student View)</h3>
+          {user.courses.length > 0 ? (
+            <ul>
+              {user.courses.map((course) => (
+                <li key={course.id}>{course.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>You are not enrolled in any courses yet.</p>
+          )}
         </div>
       )}
     </div>

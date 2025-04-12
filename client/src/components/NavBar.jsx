@@ -13,8 +13,8 @@ function Navbar() {
   };
 
   return (
-    <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <nav>
+      <div>
         <Link
           to={
             userRole === "Instructor"
@@ -23,7 +23,6 @@ function Navbar() {
               ? "/student/dashboard"
               : "/"
           }
-          style={{ fontWeight: "bold", fontSize: "1.2rem" }}
         >
           CourseForge
         </Link>
@@ -31,30 +30,15 @@ function Navbar() {
         <div>
           {userRole && (
             <>
-              <button onClick={handleLogout} style={{ marginRight: "1rem" }}>
+              <button onClick={handleLogout}>
                 Log Out
               </button>
               {userRole === "Instructor" && (
                 <>
-                  <Link to="/instructor/dashboard" style={{ marginRight: "1rem" }}>
-                    Dashboard
-                  </Link>
-                  <Link to="/instructor/courses/new" style={{ marginRight: "1rem" }}>
-                    New Course
-                  </Link>
-                  <Link to="/instructor/lessons/new" style={{ marginRight: "1rem" }}>
-                    New Lesson
-                  </Link>
                 </>
               )}
               {userRole === "Student" && (
                 <>
-                  <Link to="/student/dashboard" style={{ marginRight: "1rem" }}>
-                    Dashboard
-                  </Link>
-                  <Link to="/student/courses" style={{ marginRight: "1rem" }}>
-                    Courses
-                  </Link>
                 </>
               )}
             </>

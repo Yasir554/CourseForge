@@ -6,15 +6,18 @@ class Enrollment(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    progress = db.Column(db.Integer, default=0)  # progress percentage
-    enrolled_on = db.Column(db.DateTime, server_default=db.func.now())
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    instructor_id = db.Column(db.Integer, db.ForeignKey('instructors.id'), nullable=False)
+
+    # Relationships
+    course = db.relationship('Course', back_populates='enrollments')
+    student = db.relationship('Student', back_populates='enrollments')
+    instructor = db.relationship('Instructor', back_populates='enrollments')
     
     def to_dict(self):
         return {
-            "id": self.id,
-            "course_id": self.course_id,
-            "student_id": self.student_id,
-            "progress": self.progress,
-            "enrolled_on": self.enrolled_on.isoformat() if self.enrolled_on else None
+            'id': self.id,
+            'course_id': self.course_id,
+            'student_id': self.student_id,
+            'instructor_id': self.instructor_id
         }
