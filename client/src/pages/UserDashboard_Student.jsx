@@ -1,40 +1,25 @@
 import React, { useEffect, useState } from "react";
 
-const UserDashboard = () => {
+const UserDashboard_Student = () => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/me", {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Not logged in");
-        return res.json();
-      })
-      .then((data) => {
-        setUser(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-        setUser(null);
-        setLoading(false);
-      });
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      setUser(user);
+    }
+    console.log("User data from localStorage:", user);
   }, []);
-
-  if (loading) return <div>Loading...</div>;
 
   if (!user) return <div>Please log in to view your dashboard.</div>;
 
   return (
     <div>
       <h2>Welcome, {user.username}!</h2>
-
       {user.role === "Instructor" ? (
         <div>
           <h3>Your Courses (Instructor View)</h3>
-          {user.courses.length > 0 ? (
+          {user.courses && user.courses.length > 0 ? (
             <ul>
               {user.courses.map((course) => (
                 <li key={course.id}>{course.name}</li>
@@ -47,7 +32,7 @@ const UserDashboard = () => {
       ) : (
         <div>
           <h3>Your Enrolled Courses (Student View)</h3>
-          {user.courses.length > 0 ? (
+          {user.courses && user.courses.length > 0 ? (
             <ul>
               {user.courses.map((course) => (
                 <li key={course.id}>{course.name}</li>
@@ -62,4 +47,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+export default UserDashboard_Student;

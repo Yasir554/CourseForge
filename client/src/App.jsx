@@ -4,7 +4,8 @@ import Navbar from "./components/NavBar";
 import WelcomingPage from "./pages/WelcomingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import UserDashboard from "./pages/UserDashboard";
+import UserDashboard_Student from "./pages/UserDashboard_Student";
+import UserDashboard_Instructor from "./pages/UserDashboard_Instructor";
 import CoursePage from "./pages/coursePage";
 import LessonPage from "./pages/LessonsPage";
 import EditingLesson from "./pages/EditingLesson";
@@ -21,8 +22,8 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
             {/* Dashboard Routes */}
-            <Route path="/student/dashboard" element={<UserDashboard />} />
-            <Route path="/instructor/dashboard" element={<UserDashboard />} />
+            <Route path="/student/dashboard" element={<UserDashboard_Student />} />
+            <Route path="/instructor/dashboard" element={<UserDashboard_Instructor />} />
             {/* Courses & Lessons */}
             <Route path="/courses/:courseId" element={<CoursePage />} />
             <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />

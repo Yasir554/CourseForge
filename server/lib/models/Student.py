@@ -2,9 +2,13 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from lib.db.courseforge import db
 from lib.models.Student_Instructor import student_instructor
+from sqlalchemy_serializer import SerializerMixin
 
-class Student(db.Model):
+
+class Student(db.Model, SerializerMixin):
     __tablename__ = 'students'
+
+    serialize_rules = ('-enrollments.student', '-instructors.students', '-courses.students',)
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False)

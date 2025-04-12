@@ -28,6 +28,22 @@ CORS(app, origins=["http://localhost:5173"], supports_credentials=True)
 # -------------------------
 # Helper Functions
 # -------------------------
+
+
+@app.route("/get_all_students", methods=["GET"])
+def get_all_student():
+    students = Student.query.all()
+    print(students)
+    return jsonify([student.to_dict() for student in students]), 200
+
+@app.route("/get_all_instructors", methods=["GET"])
+def get_all_instructors():
+    instructors = Instructor.query.all()
+    print(instructors)
+    return jsonify([instructor.to_dict() for instructor in instructors]), 200
+
+
+
 def get_current_user():
     user_id = session.get("user_id")
     role = session.get("role")

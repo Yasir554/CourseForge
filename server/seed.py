@@ -30,9 +30,9 @@ def seed():
 
         # Students
         charlie = Student(username='charlie', email='charlie@example.com')
-        charlie.set_password('qwerty')
+        charlie.set_password('qwertyyy')
         dana    = Student(username='dana',    email='dana@example.com')
-        dana.set_password('asdfgh')
+        dana.set_password('asdfghgggg')
 
         # Courses & Lessons
         python_course = Course(title='Intro to Python', description='Learn Python basics.', instructor=alice)
