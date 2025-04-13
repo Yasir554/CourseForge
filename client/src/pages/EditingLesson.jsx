@@ -50,7 +50,7 @@ const EditingLesson = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Lesson saved:", data);
-        navigate(`/courses/${data.courseId || 1}/lessons/${data.id}`);
+        navigate(`instructor/dashboard/courses/${data.courseId || 1}/lessons/${data.id}`);
       })
       .catch((error) => {
         console.error("Error saving lesson:", error);
