@@ -20,48 +20,73 @@ const InstructorCoursePage = () => {
   }, [courseId]);
 
   return (
-    <div className="course-page-container">
-      <aside className="sidebar">
-        <h2>CourseForge</h2>
-        <p>Instructor</p>
-        <nav>
-          <p onClick={() => navigate("/instructor/dashboard")}>All Courses</p>
-          <p>
-            <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)}>
-              New Lesson
-            </button>
-          </p>
-          <p>
-            <button onClick={() => navigate("/instructor/dashboard/courses/new")}>
-              New Course
-            </button>
-          </p>
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
+      <aside className="w-64 bg-blue-900 text-white p-6 flex flex-col justify-start">
+        <h2 className="text-2xl font-bold mb-6">CourseForge</h2>
+        <p className="font-medium mb-8">Instructor</p>
+        <nav className="space-y-4 text-sm">
+          <button
+            onClick={() => navigate("/instructor/dashboard")}
+            className="hover:text-blue-300 text-left"
+          >
+            All Courses
+          </button>
+          <button
+            onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)}
+            className="hover:text-blue-300 text-left"
+          >
+            Create Lesson
+          </button>
+          <button
+            onClick={() => navigate("/instructor/dashboard/courses/new")}
+            className="hover:text-blue-300 text-left"
+          >
+            New Course
+          </button>
         </nav>
       </aside>
 
-      <main className="main-content">
-        <div className="content-card">
-          <header className="card-header">
-            <h1>{courseTitle}</h1>
-            <button onClick={() => navigate("/instructor/dashboard")}>All Courses</button>
-          </header>
-
-          <section className="lesson-list">
-            {lessons.map((lesson) => (
-              <div key={lesson.id} className="lesson-item">
-                <span>{lesson.lessonTitle || lesson.title}</span>
-                <div className="lesson-actions">
-                  <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/edit`)}>
-                    Edit
-                  </button>
-                  <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}`)}>
-                    Continue
-                  </button>
-                </div>
-              </div>
-            ))}
-          </section>
+      {/* Main Content */}
+      <main className="flex-1 p-8 bg-white">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">{courseTitle}</h1>
+          <button
+            onClick={() => navigate("/instructor/dashboard")}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            All Courses
+          </button>
         </div>
+
+        <section className="space-y-4">
+          {lessons.map((lesson) => (
+            <div
+              key={lesson.id}
+              className="bg-gray-200 p-4 rounded flex items-center justify-between"
+            >
+              <span className="font-medium">{lesson.lessonTitle || lesson.title}</span>
+              <div className="space-x-2">
+                <button
+                  onClick={() =>
+                    navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/edit`)
+                  }
+                  className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() =>
+                    navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}`)
+                  }
+                  className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          ))}
+        </section>
       </main>
     </div>
   );

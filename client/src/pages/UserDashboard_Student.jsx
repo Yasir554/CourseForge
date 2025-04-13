@@ -1,12 +1,15 @@
+// UserDashboardStudent.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./UserDashboard.css"; // Reuse same CSS as instructor
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
-    <div>
-      {courses.map(({ id, name },) => (
-        <div key={id}>
-          <strong>{name}</strong>
-          <button>continue</button>
+    <div className="course-list">
+      {courses.map(({ id, name }, index) => (
+        <div key={id} className="course-card">
+          <span className="course-title">Course title : {index + 1}</span>
+          <button className="continue-button">continue</button>
         </div>
       ))}
     </div>
@@ -15,6 +18,7 @@ const CourseList = ({ courses }) =>
 const UserDashboardStudent = () => {
   const [user, setUser] = useState();
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let parsed = null;
@@ -29,7 +33,10 @@ const UserDashboardStudent = () => {
   }, []);
 
   const handleLogout = () => {
-    fetch("http://127.0.0.1:5000/logout", { method: "POST", credentials: "include" })
+    fetch("http://127.0.0.1:5000/logout", {
+      method: "POST",
+      credentials: "include"
+    })
       .then(() => {
         localStorage.removeItem("user");
         window.location.href = "/";
@@ -39,32 +46,29 @@ const UserDashboardStudent = () => {
 
   if (loading) return <div>Loading your dashboard…</div>;
   if (!user) return <div>Please log in to view your dashboard.</div>;
-
-  if (user.role === "Instructor") {
-    return <div>This page is for students only.</div>;
-  }
+  if (user.role === "Instructor") return <div>This page is for students only.</div>;
 
   const { username, courses = [] } = user;
 
   return (
-    <div>
-      <div>
-        <h2 className="CourseForge" >CourseForge</h2>
-        <p>Student</p>
-      </div>
+    <div className="dashboard-container">
+      <aside className="sidebar">
+        <h2 className="logo">CourseForge</h2>
+        <p className="role">Student</p>
+        {/* No links for now, but you could add "Browse Courses" etc. here */}
+      </aside>
 
-      <div>
-        <button onClick={handleLogout} className="Log out" >Log Out</button>
-        <h1 className="h1" >Student Dashboard</h1>
-        <h2 className="h2" >Welcome, {username}!</h2>
-        <h3 className="h3" >Your Enrolled Courses</h3>
-
+      <main className="main-content">
+        <button onClick={handleLogout} className="logout-btn">Log Out</button>
+        <h1 className="dashboard-heading">Student Dashboard</h1>
+        <h2>Welcome, {username}!</h2>
+        <h3>Your Enrolled Courses</h3>
         {courses.length > 0 ? (
           <CourseList courses={courses} />
         ) : (
-          <p className="statement" >You are not enrolled in any courses yet.</p>
+          <p>You are not enrolled in any courses yet.</p>
         )}
-      </div>
+      </main>
     </div>
   );
 };

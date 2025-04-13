@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const LessonPageStudent = () => {
-  const { lessonId } = useParams();
+  const { courseId, lessonId } = useParams(); // ⬅️ include courseId
   const navigate = useNavigate();
 
   const [content, setContent] = useState("");
@@ -24,6 +24,11 @@ const LessonPageStudent = () => {
     }
   }, [lessonId]);
 
+  const handleNext = () => {
+    const nextLessonId = parseInt(lessonId) + 1;
+    navigate(`/student/dashboard/courses/${courseId}/lessons/${nextLessonId}`);
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -33,11 +38,11 @@ const LessonPageStudent = () => {
       <div className="whiteboard">
         <div dangerouslySetInnerHTML={{ __html: content }} />
       </div>
-      <button onClick={() => navigate(-1)} >
-        Back
-      </button>
-      
 
+      <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
+        <button onClick={() => navigate(-1)}>Back</button>
+        <button onClick={handleNext}>Next</button>
+      </div>
     </div>
   );
 };
