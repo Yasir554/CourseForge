@@ -1,7 +1,7 @@
 // UserDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../style/UserDashBoard_Student.css";
+import "../style/UserDashBoard_Instructor.css";
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
