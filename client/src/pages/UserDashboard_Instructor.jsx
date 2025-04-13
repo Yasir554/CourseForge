@@ -5,11 +5,14 @@ import "../style/UserDashBoard_Instructor.css";
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
-    <ul>
-      {courses.map(({ id, name }) => (
-        <li key={id}>{name}</li>
+    <div className="course-list">
+      {courses.map(({ id }, index) => (
+        <div key={id} className="course-card">
+          <span className="course-title">Course title : {index + 1}</span>
+          <button className="continue-button">continue</button>
+        </div>
       ))}
-    </ul>
+    </div>
   ) : null;
 
 const UserDashboardInstructor = () => {
@@ -31,12 +34,11 @@ const UserDashboardInstructor = () => {
 
   const handleLogout = async () => {
     try {
-      // Add API call to logout endpoint
       const response = await fetch("http://127.0.0.1:5000/logout", {
         method: "POST",
-        credentials: "include" // Required for cookies/sessions
+        credentials: "include"
       });
-      
+
       if (response.ok) {
         localStorage.removeItem("user");
         setUser(null);
@@ -56,21 +58,31 @@ const UserDashboardInstructor = () => {
   const isInstructor = role === "Instructor";
 
   return (
-    <div>
-      <button onClick={handleLogout}> Logout </button>
-      <h1 className="h1" >Instructor Dashboard</h1>
-      <h2>Welcome, {username}!</h2>
-      <h3> {isInstructor ? "Your Courses" : "Your Enrolled Courses"}</h3>
+    <div className="dashboard-container">
+      <aside className="sidebar">
+        <h2 className="logo">CourseForge</h2>
+        <p className="role">Instructor</p>
+        <nav className="nav-links">
+          <button onClick={() => navigate("/create")} className="nav-btn">Create Course</button>
+          <button onClick={() => navigate("/delete")} className="nav-btn">Delete Course</button>
+        </nav>
+      </aside>
 
-      {courses.length > 0 ? (
-        <CourseList courses={courses} />
-      ) : (
-        <p>
-          {isInstructor
-            ? "You haven't created any courses yet."
-            : "You are not enrolled in any courses yet."}
-        </p>
-      )}
+      <main className="main-content">
+        <button onClick={handleLogout} className="logout-btn">Log Out</button>
+        <h1 className="dashboard-heading">Instructor Dashboard</h1>
+        <h2>Welcome, {username}!</h2>
+        <h3>{isInstructor ? "Your Courses" : "Your Enrolled Courses"}</h3>
+        {courses.length > 0 ? (
+          <CourseList courses={courses} />
+        ) : (
+          <p>
+            {isInstructor
+              ? "You haven't created any courses yet."
+              : "You are not enrolled in any courses yet."}
+          </p>
+        )}
+      </main>
     </div>
   );
 };
