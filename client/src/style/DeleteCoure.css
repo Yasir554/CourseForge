@@ -1,0 +1,33 @@
+.course-list {
+    margin-top: 20px;
+  }
+  
+  .course-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #e5e7eb;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .course-title {
+    font-weight: 500;
+  }
+  
+  .delete-button,
+  .save-button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .delete-button:hover,
+  .save-button:hover {
+    background-color: #2563eb;
+  }
+  

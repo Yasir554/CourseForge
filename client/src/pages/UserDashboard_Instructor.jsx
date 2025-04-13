@@ -1,4 +1,4 @@
-// UserDashboard.jsx
+// UserDashboard_Instructor.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../style/UseDashBoard_Instructor.css';
