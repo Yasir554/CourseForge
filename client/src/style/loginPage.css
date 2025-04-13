@@ -1,0 +1,71 @@
+.login-page{
+    padding: "2rem";
+    background-color: #ffffff;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.CourseForge{
+    font-size: 45px;
+    font-weight: bold;
+    color: #3B82F6;
+    margin-left: -140px;
+}
+
+.login-container{
+    background-color: #F3F4F6;
+    border-radius: 18px;
+    padding-left: 90px;
+    padding-right: 90px;
+    margin-top: -20px;
+}
+
+.login-h2{
+    margin-top: 50px;
+    color: black;
+    font-size: 50px;
+}
+
+
+.email input{
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 30px;
+    border: 1px solid #000;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.password input{
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 30px;
+    border: 1px solid #000;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.error {
+    color: red;
+    font-size: 0.85rem;
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.login{
+    background-color: #3B82F6;
+    color: white;
+    padding: 10px 33px;
+    border-radius: 22px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 100px;
+}

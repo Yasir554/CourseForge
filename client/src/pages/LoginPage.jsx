@@ -2,6 +2,8 @@
 import { useNavigate } from "react-router-dom";
 import { useFormik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import "../style/loginPage.css"
+
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -75,67 +77,24 @@ const LoginPage = () => {
   });
 
   return (
-<div className='log-container'>
-<h2>Login</h2>
-<div className="container">
-  <div className="screen_sign">
-    <div className="screen__content">
-      <form onSubmit={formik.handleSubmit} className="login">
-  
-        <div className="login__field">
-          <i className="login__icon fas fa-user"></i>
-          <input
-            name="email"
-            type="text"
-            className="login__input"
-            placeholder="email"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.email}
-          />
-          {formik.touched.email && formik.errors.email && (
-            <div>{formik.errors.email}</div>
-          )}
-        </div>
-  
-        <div className="login__field">
-          <i className="login__icon fas fa-lock"></i>
-          <input
-            name="password"
-            type="password"
-            className="login__input"
-            placeholder="Password"
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.password}
-          />
-          {formik.touched.password && formik.errors.password && (
-            <div>{formik.errors.password}</div>
-          )}
-        </div>
-  
-        <button type="submit" className="button login__submit">
-          <span className="button__text">Log In</span>
-          <i className="button__icon fas fa-chevron-right"></i>
-        </button>
-      </form>
-  
-      <div className="social-login">
-        <div className='sign'></div>
-          <div className="social-icons">
-          <h4>Log in Form</h4></div>
-        </div>
+    <div className="login-page">
+      <h1 className="CourseForge">CourseForge</h1>
+      <div className="login-container">
+        <h2 className="login-h2">Login</h2>
+        <form onSubmit={formik.handleSubmit} className="login-form">
+          <div className="email">
+            <input name="email" type="text" placeholder="Email" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.email} />
+            {formik.touched.email && formik.errors.email && ( <div className="error">{formik.errors.email}</div>)}
+          </div>
+
+          <div className="password">
+            <input name="password" type="password" placeholder="Password" onChange={formik.handleChange} onBlur={formik.handleBlur} value={formik.values.password} />
+            {formik.touched.password && formik.errors.password && ( <div className="error">{formik.errors.password}</div> )}
+          </div>
+          <button type="submit" className="login">Log In</button>
+        </form>
+      </div>
     </div>
-    <div className="screen__background">
-      <span className="screen__background__shape screen__background__shape4"></span>
-      <span className="screen__background__shape screen__background__shape3"></span>
-      <span className="screen__background__shape screen__background__shape2"></span>
-      <span className="screen__background__shape screen__background__shape1"></span>
-    </div>
-  </div>
-</div>
-  </div>
-  
   );
 };
 

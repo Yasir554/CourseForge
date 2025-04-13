@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "../style/UserDashboard_Student.css";
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
