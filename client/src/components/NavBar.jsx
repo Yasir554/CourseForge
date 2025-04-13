@@ -15,34 +15,7 @@ function Navbar() {
   return (
     <nav>
       <div>
-        <Link
-          to={
-            userRole === "Instructor"
-              ? "/instructor/dashboard"
-              : userRole === "Student"
-              ? "/student/dashboard"
-              : "/"
-          }
-        >
-          CourseForge
-        </Link>
-
         <div>
-          {userRole && (
-            <>
-              <button onClick={handleLogout}>
-                Log Out
-              </button>
-              {userRole === "Instructor" && (
-                <>
-                </>
-              )}
-              {userRole === "Student" && (
-                <>
-                </>
-              )}
-            </>
-          )}
           {!userRole && (
             <>
               {location.pathname === "/login" ? (

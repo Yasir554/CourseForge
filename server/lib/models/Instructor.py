@@ -2,6 +2,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from lib.db.courseforge import db
 from lib.models.Student_Instructor import student_instructor
+from lib.models.Course_Instructor import courseInstructors
 from sqlalchemy_serializer import SerializerMixin
 
 
@@ -19,8 +20,10 @@ class Instructor(db.Model, SerializerMixin):
     # Relationships
     enrollments = db.relationship('Enrollment', back_populates='instructor', lazy=True)
     students = db.relationship('Student', secondary=student_instructor, back_populates='instructors', lazy=True)
-    courses = db.relationship('Course', back_populates='instructor', lazy=True)
+    courses = db.relationship('Course', back_populates='instructor')
     lessons = db.relationship('Lesson', back_populates='instructor', lazy=True)
+    assigned_courses = db.relationship('Course', secondary=courseInstructors, back_populates='instructors')
+
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

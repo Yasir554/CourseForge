@@ -1,50 +1,77 @@
+// UserDashboard.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const UserDashboard_Instructor = () => {
-  const [user, setUser] = useState(null);
+const CourseList = ({ courses }) =>
+  courses.length > 0 ? (
+    <ul>
+      {courses.map(({ id, name }) => (
+        <li key={id}>{name}</li>
+      ))}
+    </ul>
+  ) : null;
+
+const UserDashboardInstructor = () => {
+  const [user, setUser] = useState();
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      setUser(user);
+    try {
+      const stored = localStorage.getItem("user");
+      const parsed = stored ? JSON.parse(stored) : null;
+      setUser(parsed);
+    } catch (e) {
+      console.error("Failed to get user ", e);
+    } finally {
+      setLoading(false);
     }
-    console.log("User data from localStorage:", user);
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      // Add API call to logout endpoint
+      const response = await fetch("http://127.0.0.1:5000/logout", {
+        method: "POST",
+        credentials: "include" // Required for cookies/sessions
+      });
+      
+      if (response.ok) {
+        localStorage.removeItem("user");
+        setUser(null);
+        navigate("/");
+      } else {
+        console.error("Logout failed:", await response.text());
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  if (loading) return <div>Loading your dashboard…</div>;
   if (!user) return <div>Please log in to view your dashboard.</div>;
+
+  const { username, role, courses = [] } = user;
+  const isInstructor = role === "Instructor";
 
   return (
     <div>
-      <h2>Welcome, {user.username}!</h2>
-      {user.role === "Instructor" ? (
-        <div>
-          <h3>Your Courses (Instructor View)</h3>
-          {user.courses && user.courses.length > 0 ? (
-            <ul>
-              {user.courses.map((course) => (
-                <li key={course.id}>{course.name}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>You haven't created any courses yet.</p>
-          )}
-        </div>
+      <button onClick={handleLogout}> Logout </button>
+      <h1 className="h1" >Instructor Dashboard</h1>
+      <h2>Welcome, {username}!</h2>
+      <h3> {isInstructor ? "Your Courses" : "Your Enrolled Courses"}</h3>
+
+      {courses.length > 0 ? (
+        <CourseList courses={courses} />
       ) : (
-        <div>
-          <h3>Your Enrolled Courses (Instructor View)</h3>
-          {user.courses && user.courses.length > 0 ? (
-            <ul>
-              {user.courses.map((course) => (
-                <li key={course.id}>{course.name}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>You are not enrolled in any courses yet.</p>
-          )}
-        </div>
+        <p>
+          {isInstructor
+            ? "You haven't created any courses yet."
+            : "You are not enrolled in any courses yet."}
+        </p>
       )}
     </div>
   );
 };
 
-export default UserDashboard_Instructor;
+export default UserDashboardInstructor;

@@ -28,9 +28,9 @@ const CoursePage = () => {
   }, [courseId]);
 
   return (
-    <div className="course-page-container" style={{ display: "flex" }}>
+    <div className="course-page-container">
       {/* Sidebar */}
-      <aside className="sidebar" style={{ width: "250px", padding: "1rem", borderRight: "1px solid #ccc" }}>
+      <aside className="sidebar">
         <h2>CourseForge</h2>
         <p>{isInstructor ? "Instructor" : "Student"}</p>
         <nav>
@@ -49,9 +49,9 @@ const CoursePage = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="main-content" style={{ flex: 1, padding: "1rem" }}>
+      <main className="main-content">
         <div className="content-card">
-          <header className="card-header" style={{ display: "flex", justifyContent: "space-between" }}>
+          <header className="card-header" >
             <h1>{courseTitle}</h1>
             {isInstructor && (
               <button onClick={() => navigate(isInstructor ? "/instructor/dashboard" : "/student/dashboard")}>
@@ -62,11 +62,11 @@ const CoursePage = () => {
 
           <section className="lesson-list">
             {lessons.map((lesson) => (
-              <div key={lesson.id} className="lesson-item" style={{ border: "1px solid #ddd", margin: "0.5rem 0", padding: "0.5rem" }}>
+              <div key={lesson.id} className="lesson-item">
                 <span>{lesson.lessonTitle || lesson.title}</span>
                 <div className="lesson-actions">
                   {isInstructor && (
-                    <button onClick={() => navigate(`/instructor/lessons/${lesson.id}/edit`)} style={{ marginRight: "0.5rem" }}>
+                    <button onClick={() => navigate(`/instructor/lessons/${lesson.id}/edit`)}>
                       Edit
                     </button>
                   )}

@@ -25,13 +25,15 @@ function App() {
             <Route path="/student/dashboard" element={<UserDashboard_Student />} />
             <Route path="/instructor/dashboard" element={<UserDashboard_Instructor />} />
             {/* Courses & Lessons */}
-            <Route path="/courses/:courseId" element={<CoursePage />} />
-            <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
+            <Route path="/instructor/dashboard/courses/:courseId" element={<CoursePage />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
+            <Route path="/student/dashboard/courses/:courseId" element={<CoursePage />} />
+            <Route path="/student/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
             {/* Editing routes for instructors */}
-            <Route path="/instructor/lessons/new" element={<EditingLesson />} />
-            <Route path="/instructor/lessons/:id/edit" element={<EditingLesson />} />
-            <Route path="/instructor/courses/new" element={<EditingCourses />} />
-            <Route path="/instructor/courses/:id/edit" element={<EditingCourses />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons/new" element={<EditingLesson />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId/edit" element={<EditingLesson />} />
+            <Route path="/instructor/dashboard/courses/new" element={<EditingCourses />} />
+            <Route path="/instructor/dashboard/courses/:id/edit" element={<EditingCourses />} />
           </Routes>
         </main>
       </div>
