@@ -1,7 +1,7 @@
 // UserDashboardStudent.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./UserDashboard.css"; // Reuse same CSS as instructor
+import '../style/UserDashboard_Student.css';
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
