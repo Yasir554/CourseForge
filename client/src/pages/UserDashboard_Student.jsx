@@ -1,12 +1,12 @@
 // UserDashboardStudent.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../style/UserDashBoard_Student.css";
+import '../style/UserDashboard_Student.css';
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
     <div className="course-list">
-      {courses.map(({ id }, index) => (
+      {courses.map(({ id, name }, index) => (
         <div key={id} className="course-card">
           <span className="course-title">Course title : {index + 1}</span>
           <button className="continue-button">continue</button>

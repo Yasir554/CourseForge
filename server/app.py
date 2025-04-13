@@ -67,6 +67,15 @@ def home():
 # Authentication & Profile Routes
 # -------------------------
 
+@app.route("/lessons/<int:id>",methods=["GET"])
+def get_lesson(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    Lesson =Lesson.query.get_or_404(id)
+    return jsonify(Lesson.to_dict()), 200
+    
+
 @app.route("/register", methods=["POST"])
 def register_user():
     data = request.get_json()
@@ -171,6 +180,11 @@ def get_course(id):
 
     course = Course.query.get_or_404(id)
     return jsonify(course.to_dict()), 200
+
+
+
+
+
 
 @app.route("/courses/<int:id>", methods=["PUT"])
 def update_course(id):
