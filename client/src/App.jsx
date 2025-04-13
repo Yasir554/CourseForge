@@ -1,13 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/NavBar";
+
 import WelcomingPage from "./pages/WelcomingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import UserDashboard_Student from "./pages/UserDashboard_Student";
+import CoursePage_Student from "./pages/coursePage_Student";
+import LessonsPage_Student from "./pages/LessonsPage_Student";
 import UserDashboard_Instructor from "./pages/UserDashboard_Instructor";
-import CoursePage from "./pages/coursePage";
-import LessonPage from "./pages/LessonsPage";
+import CoursePage_Instructor from "./pages/coursePage_Instructor";
+import LessonsPage_Instructor from "./pages/LessonsPage_Instructor";
 import EditingLesson from "./pages/EditingLesson";
 import EditingCourses from "./pages/EditingCourses";
 
@@ -15,25 +17,39 @@ function App() {
   return (
     <Router>
       <div>
-        <Navbar />
         <main>
           <Routes>
             <Route path="/" element={<WelcomingPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+
+            {/* instructors routes */}
             {/* Dashboard Routes */}
-            <Route path="/student/dashboard" element={<UserDashboard_Student />} />
             <Route path="/instructor/dashboard" element={<UserDashboard_Instructor />} />
             {/* Courses & Lessons */}
-            <Route path="/instructor/dashboard/courses/:courseId" element={<CoursePage />} />
-            <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
-            <Route path="/student/dashboard/courses/:courseId" element={<CoursePage />} />
-            <Route path="/student/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonPage />} />
+            <Route path="/instructor/dashboard/courses/:courseId" element={<CoursePage_Instructor />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons" element={<LessonsPage_Instructor />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Instructor />} />
+            <Route path="/student/dashboard/courses/:courseId" element={<CoursePage_Instructor />} />
+            <Route path="/student/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Instructor />} />
             {/* Editing routes for instructors */}
             <Route path="/instructor/dashboard/courses/:courseId/lessons/new" element={<EditingLesson />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<EditingLesson />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId/edit" element={<EditingLesson />} />
             <Route path="/instructor/dashboard/courses/new" element={<EditingCourses />} />
+            <Route path="/instructor/dashboard/courses/:id" element={<EditingCourses />} />
             <Route path="/instructor/dashboard/courses/:id/edit" element={<EditingCourses />} />
+
+            {/* student routes  */}
+            {/* Dashboard routes */}
+            <Route path="/student/dashboard" element={<UserDashboard_Student />} />
+            {/* Couses and lession */}
+            <Route path="/student/dashboard/courses/:courseId" element={<CoursePage_Student />} />
+            <Route path="/student/dashboard/courses/:courseId/lessons" element={<LessonsPage_Student />} />
+            <Route path="/student/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Student />} />
+            <Route path="/student/dashboard/courses/:courseId" element={<CoursePage_Student />} />
+            <Route path="/student/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Student  />} />
+
           </Routes>
         </main>
       </div>
