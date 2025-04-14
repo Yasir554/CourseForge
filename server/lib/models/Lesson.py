@@ -1,8 +1,12 @@
 # server/lib/models/Lesson.py
 from lib.db.courseforge import db
+from sqlalchemy_serializer import SerializerMixin
 
-class Lesson(db.Model):
+
+class Lesson(db.Model, SerializerMixin):
     __tablename__ = 'lessons'
+
+    serialize_rules = ('-course.lessons', '-instructor.lessons',)
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(256), nullable=False)
