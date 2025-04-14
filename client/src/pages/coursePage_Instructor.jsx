@@ -26,24 +26,9 @@ const InstructorCoursePage = () => {
         <h2 className="text-2xl font-bold mb-6">CourseForge</h2>
         <p className="font-medium mb-8">Instructor</p>
         <nav className="space-y-4 text-sm">
-          <button
-            onClick={() => navigate("/instructor/dashboard")}
-            className="hover:text-blue-300 text-left"
-          >
-            All Courses
-          </button>
-          <button
-            onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)}
-            className="hover:text-blue-300 text-left"
-          >
-            Create Lesson
-          </button>
-          <button
-            onClick={() => navigate("/instructor/dashboard/courses/new")}
-            className="hover:text-blue-300 text-left"
-          >
-            New Course
-          </button>
+          <button onClick={() => navigate("/instructor/dashboard")} className="btn" > All Courses </button>
+          <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)} className="btn" > Create Lesson </button>
+          <button onClick={() => navigate("/instructor/dashboard/courses/new")} className="btn" > New Course </button>
         </nav>
       </aside>
 

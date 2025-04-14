@@ -1,12 +1,12 @@
 // UserDashboardStudent.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../style/UserDashboard_Student.css';
+import "../style/UserDashboard_Student.css";
 
 const CourseList = ({ courses }) =>
   courses.length > 0 ? (
     <div className="course-list">
-      {courses.map(({ id, name }, index) => (
+      {courses.map(({ id }, index) => (
         <div key={id} className="course-card">
           <span className="course-title">Course title : {index + 1}</span>
           <button className="continue-button">continue</button>
@@ -55,7 +55,6 @@ const UserDashboardStudent = () => {
       <aside className="sidebar">
         <h2 className="logo">CourseForge</h2>
         <p className="role">Student</p>
-        {/* No links for now, but you could add "Browse Courses" etc. here */}
       </aside>
 
       <main className="main-content">

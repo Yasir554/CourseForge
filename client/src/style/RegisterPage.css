@@ -1,0 +1,114 @@
+.register-page{
+    padding: "2rem";
+    background-color: #ffffff;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.CourseForge{
+    font-size: 45px;
+    font-weight: bold;
+    color: #3B82F6;
+    margin-left: -190px;
+}
+  
+.register-page > div {
+    background-color: #F3F4F6;
+    padding: 2rem;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    padding-left: 60px;
+    padding-right: 60px;
+    margin-top: -20px;
+}
+
+.register-h2{
+  margin-top: 50px;
+  color: black;
+  font-size: 50px;
+}
+  
+label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 14px;
+    font-weight: 500;
+}
+  
+input, select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+  
+input:focus, select:focus {
+    border-color: #4d90fe;
+    outline: none;
+}
+  
+.reg-btn {
+    background-color: #3B82F6;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 22px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 100px;
+  }
+  
+.error {
+    color: red;
+    font-size: 12px;
+    margin-top: -0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.custom-alert {
+    background-color: #F3F4F6; /* Light gray background */
+    color: black;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    position: relative;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .custom-alert.success {
+    border-left: 5px solid #10B981; /* green left border */
+  }
+  
+  .custom-alert.error {
+    border-left: 5px solid #EF4444; /* red left border */
+  }
+  
+  .close-alert {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-weight: bold;
+    color: black;
+  }
+  
+  .reg-btn:hover {
+    background-color: #2563EB; /* Slightly darker blue on hover */
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  

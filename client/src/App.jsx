@@ -15,7 +15,6 @@ import UserDashboard_Instructor from "./pages/UserDashboard_Instructor";
 import CoursePage_Instructor from "./pages/coursePage_Instructor";
 import LessonsPage_Instructor from "./pages/LessonsPage_Instructor";
 import EditingLesson from "./pages/EditingLesson";
-import EditingCourses from "./pages/EditingCourses";
 import CreateCourse from "./pages/CreateCourse";
 import DeleteCourse from "./pages/DeleteCourse";
 
@@ -32,13 +31,15 @@ function App() {
 
             {/* Instructor routes */}
             <Route path="/instructor/dashboard" element={<UserDashboard_Instructor />} />
+            <Route path="/instructor/dashboard/courses" element={<UserDashboard_Instructor />} />
+            <Route path="/instructor/dashboard/courses/new" element={<CreateCourse />} />
             <Route path="/instructor/dashboard/courses/:courseId" element={<CoursePage_Instructor />} />
+            <Route path="/instructor/dashboard/courses/delete" element={<DeleteCourse />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons" element={<LessonsPage_Instructor />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Instructor />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons/new" element={<EditingLesson />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId/edit" element={<EditingLesson />} />
-            <Route path="/instructor/dashboard/courses/new" element={<EditingCourses />} />
-            <Route path="/instructor/dashboard/courses/:id/edit" element={<EditingCourses />} />
+            <Route path="/instructor/dashboard/courses/:id/edit" element={<CreateCourse />} />
             <Route path="/create" element={<CreateCourse />} />
             <Route path="/delete" element={<DeleteCourse />} />
 
