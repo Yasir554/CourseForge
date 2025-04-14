@@ -5,7 +5,7 @@ import "../style/WelcomingPage.css"
 const WelcomingPage = () => {
   return (
     <div className="welcoming-page">
-      <h1 className="CourseForge">CourseForge</h1>
+      <h1 className="Courseforge">CourseForge</h1>
       <div className="welcoming-content">
         <h2 className="welcoming-message">
           Welcome to

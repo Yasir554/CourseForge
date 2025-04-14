@@ -67,6 +67,15 @@ def home():
 # Authentication & Profile Routes
 # -------------------------
 
+@app.route("/lessons/<int:id>",methods=["GET"])
+def get_lesson(id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    Lesson =Lesson.query.get_or_404(id)
+    return jsonify(Lesson.to_dict()), 200
+    
+
 @app.route("/register", methods=["POST"])
 def register_user():
     data = request.get_json()
@@ -148,22 +157,6 @@ def get_courses():
     courses = Course.query.all()
     return jsonify([c.to_dict() for c in courses]), 200
 
-@app.route("/courses", methods=["POST"])
-def create_course():
-    # Only instructors are allowed to create courses.
-    if "user_id" not in session or session.get("role") != "Instructor":
-        return jsonify({"error": "Unauthorized"}), 401
-
-    data = request.get_json()
-    course = Course(
-        title=data["title"],
-        description=data.get("description", ""),
-        instructor_id=session["user_id"]
-    )
-    db.session.add(course)
-    db.session.commit()
-    return jsonify(course.to_dict()), 201
-
 @app.route("/courses/<int:id>", methods=["GET"])
 def get_course(id):
     if "user_id" not in session:
@@ -171,6 +164,11 @@ def get_course(id):
 
     course = Course.query.get_or_404(id)
     return jsonify(course.to_dict()), 200
+
+
+
+
+
 
 @app.route("/courses/<int:id>", methods=["PUT"])
 def update_course(id):
@@ -229,6 +227,35 @@ def get_course_students(course_id):
     
     students = course.students
     return jsonify([{'id': s.id, 'username': s.username, 'email': s.email} for s in students]), 200
+
+@app.route("/courses", methods=["POST"])
+def create_course():
+    if "user_id" not in session or session.get("role") != "Instructor":
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    course = Course(
+        title=data["title"],
+        description=data.get("description", ""),
+        instructor_id=session["user_id"]
+    )
+    db.session.add(course)
+    db.session.commit()
+
+    # If students are provided, enroll them
+    student_emails = data.get("students", [])
+    for email in student_emails:
+        student = Student.query.filter_by(email=email).first()
+        if student:
+            # Create an Enrollment record for each student
+            enrollment = Enrollment(
+                course_id=course.id,
+                student_id=student.id,
+                instructor_id=session["user_id"]
+            )
+            db.session.add(enrollment)
+    db.session.commit()
+    return jsonify(course.to_dict() for course in course), 200
 
 # -------------------------
 # Enrollment Routes
@@ -330,4 +357,4 @@ def delete_lesson(id):
 # -------------------------
 
 if __name__ == "__main__":
-    app.run(port=5555, debug=True)
+    app.run(port=5000, debug=True)
