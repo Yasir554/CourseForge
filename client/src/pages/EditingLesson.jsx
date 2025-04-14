@@ -63,7 +63,7 @@ const EditingLesson = () => {
       fetch(`http://127.0.0.1:5000/lessons/${id}`, { method: "DELETE" })
         .then(() => {
           console.log("Lesson deleted");
-          navigate("/courses");
+          navigate("/courses/lessons/delete");
         })
         .catch((error) => {
           console.error("Error deleting lesson:", error);

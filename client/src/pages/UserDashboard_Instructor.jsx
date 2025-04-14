@@ -1,19 +1,32 @@
-// UserDashboard_Instructor.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/UserDashBoard_Instructor.css";
 
-const CourseList = ({ courses }) =>
-  courses.length > 0 ? (
+const CourseList = ({ courses }) => {
+  const navigate = useNavigate();
+
+  const handleContinue = (courseId) => {
+    // Navigate to the instructor's course page
+    // e.g., /instructor/dashboard/courses/123
+    navigate(`/instructor/dashboard/courses/${courseId}`);
+  };
+
+  return courses.length > 0 ? (
     <div className="course-list">
       {courses.map(({ id }, index) => (
         <div key={id} className="course-card">
           <span className="course-title">Course title : {index + 1}</span>
-          <button className="continue-button">continue</button>
+          <button
+            className="continue-button"
+            onClick={() => handleContinue(id)}
+          >
+            continue
+          </button>
         </div>
       ))}
     </div>
   ) : null;
+};
 
 const UserDashboardInstructor = () => {
   const [user, setUser] = useState();
@@ -63,13 +76,22 @@ const UserDashboardInstructor = () => {
         <h2 className="logo">CourseForge</h2>
         <p className="role">Instructor</p>
         <nav className="nav-links">
-          <button onClick={() => navigate("/instructor/dashboard/courses/new")} className="nav-btn">Create Course</button>
-          <button onClick={() => navigate("/delete")} className="nav-btn">Delete Course</button>
+          <button
+            onClick={() => navigate("/instructor/dashboard/courses/new")}
+            className="nav-btn"
+          >
+            Create Course
+          </button>
+          <button onClick={() => navigate("/delete")} className="nav-btn">
+            Delete Course
+          </button>
         </nav>
       </aside>
 
       <main className="main-content">
-        <button onClick={handleLogout} className="logout-btn">Log Out</button>
+        <button onClick={handleLogout} className="logout-btn">
+          Log Out
+        </button>
         <h1 className="dashboard-heading">Instructor Dashboard</h1>
         <h2>Welcome, {username}!</h2>
         <h3>{isInstructor ? "Your Courses" : "Your Enrolled Courses"}</h3>

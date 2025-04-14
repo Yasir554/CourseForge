@@ -39,6 +39,7 @@ function App() {
             <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Instructor />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons/new" element={<EditingLesson />} />
             <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId/edit" element={<EditingLesson />} />
+            <Route path="/instructor/dashboard/courses/:courseId/lessons/delete" element={<EditingLesson />} />
             <Route path="/instructor/dashboard/courses/:id/edit" element={<CreateCourse />} />
             <Route path="/create" element={<CreateCourse />} />
             <Route path="/delete" element={<DeleteCourse />} />

@@ -1,19 +1,32 @@
-// UserDashboardStudent.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/UserDashboard_Student.css";
 
-const CourseList = ({ courses }) =>
-  courses.length > 0 ? (
+const CourseList = ({ courses }) => {
+  const navigate = useNavigate();
+
+  // Navigate to the Course Page for the given course id.
+  const handleContinue = (courseId) => {
+    // For students, we route to /student/dashboard/courses/:courseId
+    navigate(`/student/dashboard/courses/${courseId}`);
+  };
+
+  return courses.length > 0 ? (
     <div className="course-list">
       {courses.map(({ id }, index) => (
         <div key={id} className="course-card">
           <span className="course-title">Course title : {index + 1}</span>
-          <button className="continue-button">continue</button>
+          <button
+            className="continue-button"
+            onClick={() => handleContinue(id)}
+          >
+            continue
+          </button>
         </div>
       ))}
     </div>
   ) : null;
+};
 
 const UserDashboardStudent = () => {
   const [user, setUser] = useState();
@@ -46,7 +59,8 @@ const UserDashboardStudent = () => {
 
   if (loading) return <div>Loading your dashboard…</div>;
   if (!user) return <div>Please log in to view your dashboard.</div>;
-  if (user.role === "Instructor") return <div>This page is for students only.</div>;
+  if (user.role === "Instructor")
+    return <div>This page is for students only.</div>;
 
   const { username, courses = [] } = user;
 
@@ -58,7 +72,9 @@ const UserDashboardStudent = () => {
       </aside>
 
       <main className="main-content">
-        <button onClick={handleLogout} className="logout-btn">Log Out</button>
+        <button onClick={handleLogout} className="logout-btn">
+          Log Out
+        </button>
         <h1 className="dashboard-heading">Student Dashboard</h1>
         <h2>Welcome, {username}!</h2>
         <h3>Your Enrolled Courses</h3>

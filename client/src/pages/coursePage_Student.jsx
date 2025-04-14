@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import "../style/coursePage_Student.css";
 
 const StudentCoursePage = () => {
   const { courseId } = useParams();
@@ -20,46 +21,36 @@ const StudentCoursePage = () => {
   }, [courseId]);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="page-container">
       {/* Sidebar */}
-      <aside className="w-64 bg-blue-900 text-white p-6 flex flex-col justify-start">
-        <h2 className="text-2xl font-bold mb-6">CourseForge</h2>
-        <p className="font-medium mb-8">Student</p>
-        <nav className="space-y-4 text-sm">
-          <button
-            onClick={() => navigate("/student/dashboard")}
-            className="hover:text-blue-300 text-left"
-          >
+      <aside className="sidebar">
+        <h2>CourseForge</h2>
+        <p>Student</p>
+        <nav>
+          <button onClick={() => navigate("/student/dashboard")}>
             All Courses
           </button>
         </nav>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 bg-white">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">{courseTitle}</h1>
-          <button
-            onClick={() => navigate("/student/dashboard")}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            All Courses
-          </button>
+      <main className="main-content">
+        <div className="course-title">
+          <h1 className="course-title">{courseTitle}</h1>
         </div>
 
-        <section className="space-y-4">
+        <section className="lesson-card">
           {lessons.map((lesson) => (
             <div
               key={lesson.id}
-              className="bg-gray-200 p-4 rounded flex items-center justify-between"
             >
-              <span className="font-medium">{lesson.lessonTitle || lesson.title}</span>
+              <span className="lesson-title">{lesson.lessonTitle || lesson.title}</span>
               <div>
                 <button
                   onClick={() =>
                     navigate(`/student/dashboard/courses/${courseId}/lessons/${lesson.id}`)
                   }
-                  className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+                  className="continue-button"
                 >
                   Continue
                 </button>
