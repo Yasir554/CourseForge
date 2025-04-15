@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFormik, Form, Field, ErrorMessage } from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 import "../style/loginPage.css";
 
@@ -10,72 +10,35 @@ const LoginPage = () => {
   const [alertType, setAlertType] = useState(""); // "success" or "error"
 
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
+    initialValues: { email: "", password: "" },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email format")
-        .required("Email is required"),
-      password: Yup.string()
-        .min(8, "Password must be at least 8 characters")
-        .required("Password is required"),
+      email: Yup.string().email("Invalid email format").required("Email is required"),
+      password: Yup.string().min(8, "Password must be at least 8 characters").required("Password is required"),
     }),
     onSubmit: async (values) => {
       try {
         const response = await fetch("http://127.0.0.1:5000/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            email: values.email,
-            password: values.password,
-          }),
+          body: JSON.stringify(values),
         });
+        if (!response.ok) throw new Error("Login failed");
 
-        if (!response.ok) {
-          throw new Error("Login failed");
-        }
+        const { user, access_token } = await response.json();
+        // Store user and token
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", access_token);
 
-        const studentRes = await fetch("http://127.0.0.1:5000/get_all_students", {
-          credentials: "include",
-        });
-
-        const students = await studentRes.json();
-        const student = students.find((c) => c.email === values.email);
-
-        if (!student) {
-          const instructorRes = await fetch("http://127.0.0.1:5000/get_all_instructors", {
-            credentials: "include",
-          });
-
-          const instructors = await instructorRes.json();
-          const instructor = instructors.find((c) => c.email === values.email);
-
-          if (!instructor) {
-            setAlertMsg("Instructor details not found.");
-            setAlertType("error");
-            return;
+        setAlertMsg("Login successful");
+        setAlertType("success");
+        setTimeout(() => {
+          setAlertMsg("");
+          if (user.role === "Instructor") {
+            navigate("/instructor/dashboard", { state: { user } });
+          } else {
+            navigate("/student/dashboard", { state: { user } });
           }
-
-          localStorage.setItem("user", JSON.stringify(instructor));
-          setAlertMsg("Login successfully");
-          setAlertType("success");
-          setTimeout(() => {
-            setAlertMsg("");
-            navigate("/instructor/dashboard", { state: { user: instructor } });
-          }, 1500);
-          return;
-        } else {
-          localStorage.setItem("user", JSON.stringify(student));
-          setAlertMsg("Login successfully");
-          setAlertType("success");
-          setTimeout(() => {
-            setAlertMsg("");
-            navigate("/student/dashboard", { state: { user: student } });
-          }, 1500);
-        }
+        }, 1500);
       } catch (err) {
         console.error(err);
         setAlertMsg("Login failed. Check credentials.");
@@ -89,17 +52,12 @@ const LoginPage = () => {
       <h1 className="courseForge">CourseForge</h1>
       <div className="login-container">
         <h2 className="login-h2">Login</h2>
-
-        {/* Custom Alert Box */}
         {alertMsg && (
           <div className={`custom-alert ${alertType}`}>
             {alertMsg}
-            <span className="close-alert" onClick={() => setAlertMsg("")}>
-              ×
-            </span>
+            <span className="close-alert" onClick={() => setAlertMsg("")}>×</span>
           </div>
         )}
-
         <form onSubmit={formik.handleSubmit} className="login-form">
           <div className="email">
             <input
@@ -110,11 +68,8 @@ const LoginPage = () => {
               onBlur={formik.handleBlur}
               value={formik.values.email}
             />
-            {formik.touched.email && formik.errors.email && (
-              <div className="error">{formik.errors.email}</div>
-            )}
+            {formik.touched.email && formik.errors.email && <div className="error">{formik.errors.email}</div>}
           </div>
-
           <div className="password">
             <input
               name="password"
@@ -124,20 +79,15 @@ const LoginPage = () => {
               onBlur={formik.handleBlur}
               value={formik.values.password}
             />
-            {formik.touched.password && formik.errors.password && (
-              <div className="error">{formik.errors.password}</div>
-            )}
+            {formik.touched.password && formik.errors.password && <div className="error">{formik.errors.password}</div>}
           </div>
           <button type="submit" className="login">
             Log In
           </button>
         </form>
-
         <p className="redirect-text">
           Don't have an account?{" "}
-          <span className="redirect-link" onClick={() => navigate("/register")}>
-            Register
-          </span>
+          <span className="redirect-link" onClick={() => navigate("/register")}>Register</span>
         </p>
       </div>
     </div>

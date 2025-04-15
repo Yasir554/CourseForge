@@ -6,204 +6,110 @@ import "../style/CreateCourse.css";
 
 const CreateCourse = () => {
   const navigate = useNavigate();
-  // Create a ref to access the Formik form methods
-  const formRef = useRef(null);
-  
-  // Local state for added student emails
+  const formRef = useRef();
   const [addedStudents, setAddedStudents] = useState([]);
   const [tempEmail, setTempEmail] = useState("");
-
-  // For optional local storage user update
   const [localUser, setLocalUser] = useState(null);
+
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      setLocalUser(JSON.parse(stored));
-    }
+    const raw = localStorage.getItem("user");
+    setLocalUser(raw ? JSON.parse(raw) : null);
   }, []);
 
-  // Initial form values
-  const initialValues = {
-    courseTitle: "",
-    description: ""
-  };
-
-  // Validation schema using Yup
+  const initialValues = { courseTitle: "", description: "" };
   const validationSchema = Yup.object({
     courseTitle: Yup.string().required("Course title is required"),
-    description: Yup.string().required("Description is required")
+    description: Yup.string().required("Description is required"),
   });
 
-  // Adds a student email to the list (if you later want to extend the endpoint)
   const handleAddStudent = () => {
-    if (tempEmail.trim() && !addedStudents.includes(tempEmail)) {
-      setAddedStudents([...addedStudents, tempEmail]);
+    if (tempEmail && !addedStudents.includes(tempEmail)) {
+      setAddedStudents((prev) => [...prev, tempEmail]);
     }
     setTempEmail("");
   };
 
-  // Remove a student email from the list
-  const removeStudent = (emailToRemove) => {
-    setAddedStudents(addedStudents.filter((email) => email !== emailToRemove));
-  };
-
-  // onSubmit sends a POST request to your backend to create a course
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       const payload = {
         title: values.courseTitle,
         description: values.description,
-        // Uncomment the following line if you extend your backend to accept student emails:
-        students: addedStudents
+        students: addedStudents,
       };
-
-      // IMPORTANT: Use "localhost" instead of "127.0.0.1" so cookies are sent properly.
-      const response = await fetch("http://localhost:5000/courses", {
+      const res = await fetch("http://127.0.0.1:5000/courses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create course: ${errorText}`);
+      // Update localStorage with the new course
+      if (localUser) {
+        const updated = { ...localUser, courses: [...(localUser.courses || []), data] };
+        localStorage.setItem("user", JSON.stringify(updated));
       }
 
-      const data = await response.json();
-      console.log("Course created:", data);
-
-      // Optionally update localStorage with the new course
-      if (data && localUser) {
-        const updatedUser = { ...localUser };
-        if (!updatedUser.courses) {
-          updatedUser.courses = [];
-        }
-        updatedUser.courses.push(data);
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setLocalUser(updatedUser);
-      }
-
-      // Clear the form and student list
       resetForm();
       setAddedStudents([]);
-
-      // Navigate to the instructor's dashboard course list
       navigate("/instructor/dashboard/courses");
-    } catch (error) {
-      console.error("Error creating course:", error);
-      alert("Error creating course. Check console for details.");
+    } catch (err) {
+      console.error(err);
+      alert("Error creating course.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Reset form fields and student list on discard
   const handleDiscard = () => {
+    formRef.current?.resetForm();
     setAddedStudents([]);
     setTempEmail("");
-    if (formRef.current) {
-      formRef.current.resetForm();
-    }
   };
 
   return (
     <div className="new-course-page">
-      {/* Left Sidebar */}
       <aside className="sidebar">
-        <h2 className="sidebar-title">CourseForge</h2>
-        <span className="sidebar-role">Instructor</span>
+        <h2>CourseForge</h2>
+        <span>Instructor</span>
       </aside>
-
-      {/* Main Content Area */}
       <div className="main-content">
-        {/* Top Bar with Heading and Create Button */}
         <div className="top-bar">
           <h2>New Course</h2>
-          <button
-            className="create-course-btn"
-            onClick={() => {
-              if (formRef.current) {
-                formRef.current.submitForm();
-              }
-            }}
-          >
-            Create Course
-          </button>
+          <button onClick={() => formRef.current?.submitForm()}>Create Course</button>
         </div>
-
-        {/* Form Section */}
-        <Formik
-          innerRef={formRef}
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={onSubmit}
-        >
+        <Formik innerRef={formRef} initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
           {({ isSubmitting }) => (
-            <Form id="new-course-form" className="course-form">
-              <label htmlFor="courseTitle" className="form-label">
-                Course Name
-              </label>
-              <Field
-                type="text"
-                id="courseTitle"
-                name="courseTitle"
-                placeholder="Enter course title"
-                className="form-input"
-              />
+            <Form>
+              <label>Course Name</label>
+              <Field name="courseTitle" placeholder="Title" />
               <ErrorMessage name="courseTitle" component="div" className="error" />
 
-              <label htmlFor="description" className="form-label">
-                Course Description
-              </label>
-              <Field
-                as="textarea"
-                id="description"
-                name="description"
-                placeholder="Enter course description"
-                className="form-textarea"
-              />
+              <label>Description</label>
+              <Field as="textarea" name="description" placeholder="Description" />
               <ErrorMessage name="description" component="div" className="error" />
 
-              {/* Add Student Section (optional) */}
-              <label className="form-label">Add Student</label>
-              <div className="add-student-row">
-                <input
-                  type="email"
-                  placeholder="Enter student email"
-                  value={tempEmail}
-                  onChange={(e) => setTempEmail(e.target.value)}
-                  className="form-input"
-                />
-                <button type="button" className="add-btn" onClick={handleAddStudent}>
+              <label>Add Student</label>
+              <div>
+                <input value={tempEmail} onChange={(e) => setTempEmail(e.target.value)} placeholder="Email" />
+                <button type="button" onClick={handleAddStudent}>
                   Add
                 </button>
               </div>
 
-              {/* Display List of Added Students */}
-              <label className="form-label">Added Students</label>
-              <div className="added-students-container">
-                {addedStudents.map((email) => (
-                  <div key={email} className="student-tag">
-                    <span>{email}</span>
-                    <button
-                      type="button"
-                      className="remove-student-btn"
-                      onClick={() => removeStudent(email)}
-                    >
-                      &times;
-                    </button>
-                  </div>
+              <label>Added Students</label>
+              <div>
+                {addedStudents.map((e) => (
+                  <span key={e}>
+                    {e} <button onClick={() => setAddedStudents((prev) => prev.filter((x) => x !== e))}>×</button>
+                  </span>
                 ))}
               </div>
             </Form>
           )}
         </Formik>
-
-        {/* Bottom Discard Button */}
-        <button className="discard-btn" onClick={handleDiscard}>
-          Discard
-        </button>
+        <button onClick={handleDiscard}>Discard</button>
       </div>
     </div>
   );

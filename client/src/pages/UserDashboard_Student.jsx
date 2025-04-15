@@ -2,66 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/UserDashboard_Student.css";
 
-const CourseList = ({ courses }) => {
-  const navigate = useNavigate();
-
-  // Navigate to the Course Page for the given course id.
-  const handleContinue = (courseId) => {
-    // For students, we route to /student/dashboard/courses/:courseId
-    navigate(`/student/dashboard/courses/${courseId}`);
-  };
-
-  return courses.length > 0 ? (
-    <div className="course-list">
-      {courses.map(({ id }, index) => (
-        <div key={id} className="course-card">
-          <span className="course-title">Course title : {index + 1}</span>
-          <button
-            className="continue-button"
-            onClick={() => handleContinue(id)}
-          >
-            continue
-          </button>
-        </div>
-      ))}
-    </div>
-  ) : null;
-};
-
 const UserDashboardStudent = () => {
-  const [user, setUser] = useState();
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let parsed = null;
-    try {
-      const raw = localStorage.getItem("user");
-      if (raw) parsed = JSON.parse(raw);
-    } catch (e) {
-      console.error("Failed to parse user from localStorage", e);
-    }
-    setUser(parsed);
-    setLoading(false);
+    const raw = localStorage.getItem("user");
+    setUser(raw ? JSON.parse(raw) : null);
   }, []);
 
   const handleLogout = () => {
-    fetch("http://127.0.0.1:5000/logout", {
-      method: "POST",
-      credentials: "include"
-    })
-      .then(() => {
-        localStorage.removeItem("user");
-        window.location.href = "/";
-      })
-      .catch((err) => console.error("Logout failed", err));
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
-  if (loading) return <div>Loading your dashboard…</div>;
   if (!user) return <div>Please log in to view your dashboard.</div>;
-  if (user.role === "Instructor")
-    return <div>This page is for students only.</div>;
-
   const { username, courses = [] } = user;
 
   return (
@@ -70,7 +26,6 @@ const UserDashboardStudent = () => {
         <h2 className="logo">CourseForge</h2>
         <p className="role">Student</p>
       </aside>
-
       <main className="main-content">
         <button onClick={handleLogout} className="logout-btn">
           Log Out
@@ -79,7 +34,16 @@ const UserDashboardStudent = () => {
         <h2>Welcome, {username}!</h2>
         <h3>Your Enrolled Courses</h3>
         {courses.length > 0 ? (
-          <CourseList courses={courses} />
+          <div className="course-list">
+            {courses.map((c, idx) => (
+              <div key={c.id} className="course-card">
+                <span>Course {idx + 1}</span>
+                <button onClick={() => navigate(`/student/dashboard/courses/${c.id}`)}>
+                  Continue
+                </button>
+              </div>
+            ))}
+          </div>
         ) : (
           <p>You are not enrolled in any courses yet.</p>
         )}

@@ -5,7 +5,7 @@
   }
   
   .sidebar {
-    background-color: #1e3a8a; /* Dark blue */
+    background-color: #343a40; /* Dark blue */
     color: white;
     width: 300px;
     padding: 20px;
@@ -54,7 +54,7 @@
   
   .logout-btn {
     float: right;
-    background-color: #3B82F6;
+    background-color: #343a40;
     color: white;
     padding: 10px 15px;
     border-radius: 18px;

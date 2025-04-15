@@ -12,7 +12,7 @@
 .courseForge{
     font-size: 45px;
     font-weight: bold;
-    color: #3B82F6;
+    color: #5a6268;
     margin-left: -140px;
 }
 
@@ -26,7 +26,7 @@
 
 .login-h2{
     margin-top: 50px;
-    color: black;
+    color: #5a6268;
     font-size: 50px;
 }
 
@@ -60,14 +60,17 @@
 }
 
 .login{
-    background-color: #3B82F6;
+    background-color: #343a40;
     color: white;
     padding: 10px 33px;
     border-radius: 22px;
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    
+}
+
+.login:hover {
+  background-color: #5a6268;
 }
 
 .redirect-text {
@@ -117,10 +120,6 @@
     cursor: pointer;
     font-weight: bold;
     color: black;
-  }
-  
-  .login:hover {
-    background-color: #2563EB;
   }
   
   /* Optional: Keyframes for Fade In Animation */

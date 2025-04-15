@@ -5,7 +5,7 @@
   }
   
   .sidebar {
-    background-color: #1e3a8a; /* Dark blue */
+    background-color: #343a40; /* Dark blue */
     color: white;
     width: 300px;
     padding: 20px;
@@ -43,8 +43,9 @@
   }
   
   .nav-btn:hover {
-    text-decoration: underline;
+    background-color: #5a6268;
   }
+  
   
   .main-content {
     flex: 1;
@@ -54,13 +55,17 @@
   
   .logout-btn {
     float: right;
-    background-color: #3B82F6;
+    background-color: #343a40;
     color: white;
     padding: 10px 15px;
     border-radius: 18px;
     border: none;
     cursor: pointer;
     font-size: 1rem;
+  }
+
+  .logout-btn:hover {
+    background-color: #5a6268;
   }
   
   .dashboard-heading {
@@ -85,7 +90,7 @@
   
   .continue-button {
     padding: 6px 12px;
-    background-color: #3b82f6;
+    background-color: #343a40;
     color: white;
     border: none;
     border-radius: 5px;

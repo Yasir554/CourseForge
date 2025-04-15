@@ -12,7 +12,7 @@
 .Courseforge{
     font-size: 45px;
     font-weight: bold;
-    color: #3B82F6;
+    color: #5a6268;
     margin-left: -140px;
 }
 
@@ -25,12 +25,12 @@
 }
 
 .welcoming-message {
-    color: black;
+    color: #5a6268;
     font-size: 50px;
 }
 
 .login-btn {
-    background-color: #3B82F6;
+    background-color: #343a40;
     color: white;
     padding: 10px 33px;
     border-radius: 22px;
@@ -39,6 +39,10 @@
     font-size: 1rem;
 }
 
+.login-btn:hover {
+    background-color: #5a6268;
+  }
+
 .or{
     margin: 20px 0;
     font-size: 1.5rem;
@@ -46,7 +50,7 @@
 }
 
 .register-btn {
-    background-color: #3B82F6;
+    background-color: #343a40;
     color: white;
     padding: 10px 24px;
     border-radius: 22px;
@@ -55,3 +59,7 @@
     font-size: 1rem;
     margin-bottom: 100px;
 }
+
+.register-btn:hover {
+    background-color: #5a6268;
+  }

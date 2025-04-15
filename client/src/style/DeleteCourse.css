@@ -10,7 +10,7 @@
 /* Left sidebar styling */
 .sidebar {
   width: 220px;
-  background-color: #1E40AF; /* Deep blue */
+  background-color: #343a40; /* Deep blue */
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -65,7 +65,7 @@
 
 /* Toggle (Delete/Unmark) button styling */
 .toggle-btn {
-  background-color: #3B82F6;
+  background-color: #343a40;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -76,7 +76,7 @@
 }
 
 .toggle-btn:hover {
-  background-color: #2563EB;
+  background-color: #5a6268;
 }
 
 /* Message styling */
@@ -88,7 +88,7 @@
 
 /* Save button styling */
 .save-button {
-  background-color: #3B82F6;
+  background-color: #343a40;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -100,5 +100,5 @@
 }
 
 .save-button:hover {
-  background-color: #2563EB;
+  background-color: #5a6268;
 }

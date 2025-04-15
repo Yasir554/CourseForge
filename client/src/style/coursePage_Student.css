@@ -1,7 +1,7 @@
 /* Sidebar */
 .sidebar {
   width: 250px;
-  background-color: #0a2a7a;
+  background-color: #343a40;
   color: white;
   padding: 30px 20px;
   display: flex;
@@ -65,7 +65,7 @@
 }
 
 .continue-button {
-  background-color: #3b82f6;
+  background-color: #343a40;
   color: white;
   border: none;
   padding: 6px 16px;
@@ -75,8 +75,9 @@
 }
 
 .continue-button:hover {
-  background-color: #2563eb;
+  background-color: #5a6268;
 }
+
 
 /* Page Layout */
 .page-container {

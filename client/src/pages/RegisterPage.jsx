@@ -1,26 +1,20 @@
-import React, { useState } from "react"; // ✅ Added useState
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import "../style/RegisterPage.css";
-import { useNavigate } from "react-router-dom"; 
 
 const RegisterPage = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [alertMsg, setAlertMsg] = useState("");
-  const [alertType, setAlertType] = useState(""); // "success" or "error"
+  const [alertType, setAlertType] = useState("");
 
-  const initialValues = {
-    username: "",
-    email: "",
-    password: "",
-    role: "Student",
-  };
-
+  const initialValues = { username: "", email: "", password: "", role: "Student" };
   const validationSchema = Yup.object({
     username: Yup.string().required("Username is required"),
     email: Yup.string().email("Invalid email format").required("Email is required"),
-    password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-    role: Yup.string().oneOf(["Instructor", "Student"], "Invalid role").required("Role is required"),
+    password: Yup.string().min(8, "Password must be at least 8 characters").required("Password is required"),
+    role: Yup.string().oneOf(["Instructor","Student"], "Invalid role").required("Role is required"),
   });
 
   const onSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -28,7 +22,6 @@ const RegisterPage = () => {
       const response = await fetch("http://127.0.0.1:5000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(values),
       });
       const data = await response.json();
@@ -41,12 +34,12 @@ const RegisterPage = () => {
           navigate("/login");
         }, 1500);
       } else {
-        setAlertMsg(data?.error || "Registration failed.");
+        setAlertMsg(data.error || "Registration failed.");
         setAlertType("error");
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      setAlertMsg("An unexpected error occurred during registration.");
+      console.error(error);
+      setAlertMsg("An unexpected error occurred.");
       setAlertType("error");
     } finally {
       setSubmitting(false);
@@ -58,15 +51,12 @@ const RegisterPage = () => {
       <h1 className="CourseForge">CourseForge</h1>
       <div className="register-container">
         <h2 className="register-h2">Register</h2>
-
-        {/* ✅ Custom alert box */}
         {alertMsg && (
           <div className={`custom-alert ${alertType}`}>
             {alertMsg}
             <span className="close-alert" onClick={() => setAlertMsg("")}>×</span>
           </div>
         )}
-
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
           {({ isSubmitting }) => (
             <Form>

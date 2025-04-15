@@ -1,0 +1,115 @@
+/* Overall Page Container */
+.page-container {
+    font-family: 'Roboto', sans-serif;
+    background-color: #F9F9F9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Flex Container Utility */
+  .flex {
+    display: flex;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    width: 250px;
+    background-color: #343a40;      /* Dark background color */
+    color: #ffffff;
+    min-height: 100vh;              /* Full viewport height */
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar p {
+    color: #c2c7d0;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar nav button {
+    width: 100%;
+    background-color: #495057;      /* Button background */
+    border: none;
+    color: #ffffff;
+    padding: 12px 15px;
+    margin: 8px 0;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: left;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sidebar nav button:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Main Content Area */
+  .main-content {
+    flex-grow: 1;
+    background-color: #ffffff;
+    padding: 30px;
+  }
+  
+  /* Course Title Styling */
+  .course-title {
+    margin-bottom: 30px;
+  }
+  
+  .course-title h1 {
+    color: #333;
+    font-size: 32px;
+    margin: 0;
+  }
+  
+  /* Lesson Card Container */
+  .lesson-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  /* Individual Lesson Card */
+  .lesson-title {
+    background-color: #f1f1f1;
+    border-radius: 6px;
+    padding: 15px;
+    width: calc(33.333% - 20px);
+    min-width: 250px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* Lesson Title Text */
+  .lesson-title span {
+    display: block;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  /* Lesson Card Buttons */
+  .lesson-title .btn {
+    background-color: #343a40;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .lesson-title .btn:hover {
+    background-color: #343a40;
+  }
+  

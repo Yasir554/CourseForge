@@ -1,50 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import "../style/LessonsPage_Student.css";
 
-const LessonPageStudent = () => {
-  const { courseId, lessonId } = useParams(); // ⬅️ include courseId
+const LessonsPage_Student = () => {
+  const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (lessonId) {
-      setLoading(true);
-      fetch(`http://127.0.0.1:5000/lessons/${lessonId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setContent(data.content);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching lesson:", error);
-          setLoading(false);
-        });
+      fetch(`http://localhost:5000/lessons/${lessonId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((r) => r.json())
+        .then((d) => setContent(d.content))
+        .catch(console.error)
+        .finally(() => setLoading(false));
     }
-  }, [lessonId]);
+  }, [lessonId, token]);
 
   const handleNext = () => {
-    const nextLessonId = parseInt(lessonId) + 1;
-    navigate(`/student/dashboard/courses/${courseId}/lessons/${nextLessonId}`);
+    // Adjust navigation logic according to your app's requirements.
+    navigate(`/student/dashboard/courses/${courseId}/lessons/${+lessonId + 1}`);
   };
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="lesson-page" style={{ padding: "2rem" }}>
+    <div className="lesson-page">
       <h1>Lesson</h1>
-      <p>Lesson content:</p>
-      <div className="whiteboard">
-        <div dangerouslySetInnerHTML={{ __html: content }} />
-      </div>
-
-      <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-        <button onClick={() => navigate(-1)}>Back</button>
-        <button onClick={handleNext}>Next</button>
-      </div>
+      <div dangerouslySetInnerHTML={{ __html: content }} />
+      <button onClick={() => navigate(-1)}>Back</button>
+      <button onClick={handleNext}>Next</button>
     </div>
   );
 };
 
-export default LessonPageStudent;
+export default LessonsPage_Student;

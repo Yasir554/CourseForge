@@ -1,4 +1,3 @@
-# server/lib/models/Student_Instructor.py
 from lib.db.courseforge import db
 
 student_instructor = db.Table(
