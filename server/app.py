@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_jwt_extended import (
@@ -13,7 +13,7 @@ from lib.models.Courses import Course
 from lib.models.Enrollment import Enrollment
 from lib.models.Lesson import Lesson
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="")
 # Enable CORS for all domains (JWT auth uses headers)
 CORS(app)
 
@@ -295,6 +295,11 @@ def delete_lesson(id):
     db.session.delete(lesson)
     db.session.commit()
     return '', 204
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory("static", "index.html")
 
 # -------------------------
 # Run Server

@@ -10,19 +10,33 @@ const InstructorCoursePage = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    // Fetch lessons
     fetch(`http://127.0.0.1:5000/courses/${courseId}/lessons`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch lessons");
+        return res.json();
+      })
       .then(setLessons)
-      .catch(console.error);
+      .catch(err => {
+        console.error("Error fetching lessons:", err);
+        setLessons([]);
+      });
 
+    // Fetch course title
     fetch(`http://127.0.0.1:5000/courses/${courseId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch course info");
+        return res.json();
+      })
       .then(data => setCourseTitle(data.title))
-      .catch(console.error);
+      .catch(err => {
+        console.error("Error fetching course title:", err);
+        setCourseTitle("Course Not Found");
+      });
   }, [courseId, token]);
 
   return (
@@ -34,27 +48,43 @@ const InstructorCoursePage = () => {
           <button onClick={() => navigate("/instructor/dashboard")} className="btn">
             All Courses
           </button>
-          <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)} className="btn">
+          <button
+            onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)}
+            className="btn"
+          >
             Create Lesson
           </button>
         </nav>
       </aside>
+
       <main className="main-content">
         <h1 className="course-title">{courseTitle}</h1>
         <section className="lesson-card">
-          {lessons.map(lesson => (
-            <div key={lesson.id} className="lesson-title">
-              <span>{lesson.title}</span>
-              <div className="btn">
-                <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/edit`)}>
-                  Edit
-                </button>
-                <button onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}`)}>
-                  Continue
-                </button>
+          {lessons.length === 0 ? (
+            <p>No lessons found.</p>
+          ) : (
+            lessons.map(lesson => (
+              <div key={lesson.id} className="lesson-title">
+                <span>{lesson.title}</span>
+                <div className="btn">
+                  <button
+                    onClick={() =>
+                      navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/edit`)
+                    }
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() =>
+                      navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}`)
+                    }
+                  >
+                    Continue
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </section>
       </main>
     </div>
