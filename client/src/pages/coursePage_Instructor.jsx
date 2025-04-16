@@ -10,30 +10,32 @@ const InstructorCoursePage = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    // Common headers with JWT
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+
     // Fetch lessons
-    fetch(`http://127.0.0.1:5000/courses/${courseId}/lessons`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => {
+    fetch(`http://127.0.0.1:5000/courses/${courseId}/lessons`, { headers })
+      .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch lessons");
         return res.json();
       })
       .then(setLessons)
-      .catch(err => {
+      .catch((err) => {
         console.error("Error fetching lessons:", err);
         setLessons([]);
       });
 
     // Fetch course title
-    fetch(`http://127.0.0.1:5000/courses/${courseId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => {
+    fetch(`http://127.0.0.1:5000/courses/${courseId}`, { headers })
+      .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch course info");
         return res.json();
       })
-      .then(data => setCourseTitle(data.title))
-      .catch(err => {
+      .then((data) => setCourseTitle(data.title))
+      .catch((err) => {
         console.error("Error fetching course title:", err);
         setCourseTitle("Course Not Found");
       });
@@ -49,13 +51,17 @@ const InstructorCoursePage = () => {
             All Courses
           </button>
           <button
-            onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)}
+            onClick={() =>
+              navigate(`/instructor/dashboard/courses/${courseId}/lessons/new`)
+            }
             className="btn"
           >
             Create Lesson
           </button>
           <button
-            onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/delete/choose`)}
+            onClick={() =>
+              navigate(`/instructor/dashboard/courses/${courseId}/lessons/delete/choose`)
+            }
             className="btn"
           >
             Delete Lesson

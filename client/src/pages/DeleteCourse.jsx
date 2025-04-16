@@ -21,22 +21,30 @@ const DeleteCourse = () => {
 
   const handleSave = async () => {
     if (!toDelete.length) return setMsg("No courses marked.");
+
+    const token = localStorage.getItem("token"); // ✅ Get your JWT token
+
     try {
       await Promise.all(
         toDelete.map((id) =>
           fetch(`http://localhost:5000/courses/${id}`, {
             method: "DELETE",
-            credentials: "include",
+            headers: {
+              Authorization: `Bearer ${token}`, // ✅ Include token
+              "Content-Type": "application/json",
+            },
           })
         )
       );
-      // update localStorage to reflect deletions
+
+      // ✅ Update localStorage to reflect deletions
       const raw = localStorage.getItem("user");
       if (raw) {
         const u = JSON.parse(raw);
         u.courses = courses;
         localStorage.setItem("user", JSON.stringify(u));
       }
+
       setMsg("Deleted successfully.");
       setToDelete([]);
     } catch {

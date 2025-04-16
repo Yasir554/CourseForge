@@ -18,7 +18,7 @@ import traceback
 app = Flask(__name__, static_folder="static", static_url_path="")
 # Enable CORS for all domains (JWT auth uses headers)
 CORS(app,
-    #  supports_credentials=True,
+     supports_credentials=True,
      resources={r"/*": {"origins": "http://localhost:5173"}},
      expose_headers=["Content-Type", "X-CSRFToken", "Authorization"],
      allow_headers=["Content-Type", "X-CSRFToken", "Authorization"])
