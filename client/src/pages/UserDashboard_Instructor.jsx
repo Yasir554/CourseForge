@@ -26,8 +26,17 @@ const UserDashboardInstructor = () => {
         <h2 className="logo">CourseForge</h2>
         <p className="role">Instructor</p>
         <nav className="nav-links">
-          <button onClick={() => navigate("/instructor/dashboard/courses/new")} className="nav-btn">
+          <button
+            onClick={() => navigate("/instructor/dashboard/courses/new")}
+            className="nav-btn"
+          >
             Create Course
+          </button>
+          <button
+            onClick={() => navigate("/instructor/dashboard/courses/delete")}
+            className="nav-btn"
+          >
+            Delete Course
           </button>
         </nav>
       </aside>

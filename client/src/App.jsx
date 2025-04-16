@@ -16,6 +16,7 @@ import InstructorCoursePage from "./pages/coursePage_Instructor";
 import LessonsPage_Instructor from "./pages/LessonsPage_Instructor";
 import CreateLesson from "./pages/CreateLesson";
 import DeleteLesson from "./pages/DeleteLesson";
+import DeleteLessonChooser from "./pages/DeleteLessonChooser"; // NEW
 import CreateCourse from "./pages/CreateCourse";
 import DeleteCourse from "./pages/DeleteCourse";
 
@@ -42,6 +43,7 @@ function App() {
           <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId" element={<LessonsPage_Instructor />} />
           <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId/edit" element={<CreateLesson />} />
           <Route path="/instructor/dashboard/courses/:courseId/lessons/:lessonId/delete" element={<DeleteLesson />} />
+          <Route path="/instructor/dashboard/courses/:courseId/lessons/delete/choose" element={<DeleteLessonChooser />} /> {/* NEW */}
 
           {/* Student routes */}
           <Route path="/student/dashboard" element={<UserDashboardStudent />} />

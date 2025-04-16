@@ -54,6 +54,12 @@ const InstructorCoursePage = () => {
           >
             Create Lesson
           </button>
+          <button
+            onClick={() => navigate(`/instructor/dashboard/courses/${courseId}/lessons/delete/choose`)}
+            className="btn"
+          >
+            Delete Lesson
+          </button>
         </nav>
       </aside>
 
@@ -63,7 +69,7 @@ const InstructorCoursePage = () => {
           {lessons.length === 0 ? (
             <p>No lessons found.</p>
           ) : (
-            lessons.map(lesson => (
+            lessons.map((lesson) => (
               <div key={lesson.id} className="lesson-title">
                 <span>{lesson.title}</span>
                 <div className="btn">
