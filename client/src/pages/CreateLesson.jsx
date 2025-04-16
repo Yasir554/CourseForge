@@ -19,10 +19,21 @@ const CreateLesson = () => {
 
   useEffect(() => {
     if (isEdit) {
+      if (!token) {
+        alert("Unauthorized. Please log in.");
+        navigate("/login"); // or handle however your app expects
+        return;
+      }
+
       fetch(`http://localhost:5000/lessons/${lessonId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error("Failed to fetch lesson");
+          return r.json();
+        })
         .then((data) =>
           setInitialValues({
             title: data.title,
@@ -30,10 +41,13 @@ const CreateLesson = () => {
             duration: data.duration,
           })
         )
-        .catch(console.error)
+        .catch((err) => {
+          console.error(err);
+          alert("Failed to load lesson data.");
+        })
         .finally(() => setLoading(false));
     }
-  }, [isEdit, lessonId, token]);
+  }, [isEdit, lessonId, token, navigate]);
 
   const schema = Yup.object({
     title: Yup.string().required("Required"),
@@ -42,6 +56,11 @@ const CreateLesson = () => {
   });
 
   const onSubmit = async (values, { setSubmitting }) => {
+    if (!token) {
+      alert("Unauthorized. Please log in.");
+      return;
+    }
+
     try {
       const payload = {
         title: values.title,
@@ -62,7 +81,12 @@ const CreateLesson = () => {
         },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(await res.text());
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to save lesson.");
+      }
+
       const data = await res.json();
       navigate(`/instructor/dashboard/courses/${courseId}/lessons/${data.id}`);
     } catch (err) {
