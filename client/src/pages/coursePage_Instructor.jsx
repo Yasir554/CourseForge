@@ -84,14 +84,14 @@ const InstructorCoursePage = () => {
                       navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/edit`)
                     }
                   >
-                    Edit
+                    Edit Lesson 
                   </button>
                   <button
                     onClick={() =>
                       navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}`)
                     }
                   >
-                    Continue
+                    Lesson content Edit 
                   </button>
                 </div>
               </div>

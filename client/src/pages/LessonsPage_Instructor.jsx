@@ -10,6 +10,10 @@ const LessonsPage_Instructor = () => {
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [whiteboardContent, setWhiteboardContent] = useState("");
+
+  const storageKey = `lesson_${lessonId}_whiteboard`;
+
   useEffect(() => {
     fetch(`http://localhost:5000/lessons/${lessonId}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -20,49 +24,39 @@ const LessonsPage_Instructor = () => {
       .finally(() => setLoading(false));
   }, [lessonId, token]);
 
+  // Load saved content from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) setWhiteboardContent(saved);
+  }, [storageKey]);
+
+  // Save to localStorage whenever the content changes
+  useEffect(() => {
+    localStorage.setItem(storageKey, whiteboardContent);
+  }, [whiteboardContent, storageKey]);
+
   if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <div className="lesson-page-container">
       <div className="lesson-header">
         <h2 className="logo">CourseForge</h2>
-        <button className="topics-btn">Topics</button>
       </div>
 
       <div className="lesson-content">
-        <h1 className="lesson-title">Lesson Title : {lesson.title}</h1>
-        <p className="lesson-description">Description</p>
+        <h1 className="lesson-title">Lesson Title: {lesson.title}</h1>
 
-        <div className="lesson-box">
-          <div className="lesson-section">
-            <h3>Modules</h3>
-            <ul>
-              <li>Lorence 1</li>
-              <li>Lorence 2</li>
-              <li>Lorence 3</li>
-              <li>Lorence 4</li>
-            </ul>
-          </div>
-
-          <div className="lesson-section">
-            <h3>Assessment</h3>
-            <ul>
-              <li>Lorence 1</li>
-              <li>Lorence 2</li>
-            </ul>
-          </div>
-
-          <div className="lesson-section">
-            <h3>Conclusion</h3>
-            <ul>
-              <li>Lorence 1</li>
-              <li>Lorence 1</li>
-            </ul>
-          </div>
+        <div className="whiteboard-wrapper">
+          <textarea
+            className="whiteboard-textarea"
+            placeholder="Start typing your lesson content here..."
+            value={whiteboardContent}
+            onChange={(e) => setWhiteboardContent(e.target.value)}
+          ></textarea>
         </div>
 
         <div className="btn-container">
-          <button className="next-btn" onClick={() => navigate(-1)}>Next</button>
+          <button className="next-btn" onClick={() => navigate(-1)}>Back</button>
         </div>
       </div>
     </div>
