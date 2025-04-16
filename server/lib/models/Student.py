@@ -2,12 +2,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from lib.db.courseforge import db
 from lib.models.Student_Instructor import student_instructor
 from sqlalchemy_serializer import SerializerMixin
-
+from sqlalchemy.ext.associationproxy import association_proxy
 
 class Student(db.Model, SerializerMixin):
     __tablename__ = 'students'
 
-    serialize_rules = ('-enrollments.student', '-instructors.students', '-courses.students',)
+    serialize_rules = ('-enrollments.student', '-instructors.students', '-courses',)
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False)
@@ -15,9 +15,11 @@ class Student(db.Model, SerializerMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(50), default='Student')
 
-    enrollments = db.relationship('Enrollment', back_populates='student', lazy=True)
+    enrollments = db.relationship('Enrollment', back_populates='student', lazy=True, cascade='all, delete-orphan')
     instructors = db.relationship('Instructor', secondary=student_instructor, back_populates='students', lazy=True)
-    courses = db.relationship('Course', secondary='enrollments', back_populates='students', overlaps='enrollments')
+
+    # Association proxy to access courses directly
+    courses = association_proxy('enrollments', 'course')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -13,9 +13,15 @@ from lib.models.Courses import Course
 from lib.models.Enrollment import Enrollment
 from lib.models.Lesson import Lesson
 
+import traceback
+
 app = Flask(__name__, static_folder="static", static_url_path="")
 # Enable CORS for all domains (JWT auth uses headers)
-CORS(app)
+CORS(app,
+    #  supports_credentials=True,
+     resources={r"/*": {"origins": "http://localhost:5173"}},
+     expose_headers=["Content-Type", "X-CSRFToken", "Authorization"],
+     allow_headers=["Content-Type", "X-CSRFToken", "Authorization"])
 
 # JWT configuration
 app.config["JWT_SECRET_KEY"] = "super_secret_key_for_jwt"
@@ -120,33 +126,46 @@ def get_course(id):
     course = Course.query.get_or_404(id)
     return jsonify(course.to_dict()), 200
 
-@app.route('/courses', methods=['POST'])
+@app.route("/courses", methods=["POST"])
 @jwt_required()
 def create_course():
-    identity = get_jwt_identity()
-    if identity.get("role") != "Instructor":
-        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        data = request.get_json()
+        title = data.get("title")
+        description = data.get("description")
+        student_emails = data.get("students", [])
 
-    data = request.get_json()
-    title = data.get("title")
-    description = data.get("description")
-    student_emails = data.get("students", [])
-    instructor_id = identity.get("id")
+        if not title or not description:
+            return jsonify({"error": "Missing required fields"}), 400
 
-    new_course = Course(title=title, description=description, instructor_id=instructor_id)
-    db.session.add(new_course)
-    db.session.flush()
+        current_user = get_jwt_identity()
+        instructor = Instructor.query.get(current_user.get("id"))
 
-    for email in student_emails:
-        student = Student.query.filter_by(email=email).first()
-        if not student:
-            print(f"Student with email {email} not found.")
-            continue
-        enrollment = Enrollment(student_id=student.id, course_id=new_course.id)
-        db.session.add(enrollment)
+        if not instructor:
+            return jsonify({"error": "User not found"}), 404
 
-    db.session.commit()
-    return jsonify(new_course.to_dict()), 201
+        course = Course(title=title, description=description, instructor_id=instructor.id)
+        db.session.add(course)
+        db.session.flush()  # Get course.id before enrollments
+
+        for email in student_emails:
+            student = Student.query.filter_by(email=email).first()
+            if student:
+                enrollment = Enrollment(course_id=course.id, student_id=student.id, instructor_id=instructor.id)
+                db.session.add(enrollment)
+
+        db.session.commit()
+
+        return jsonify({
+            "id": course.id,
+            "title": course.title,
+            "description": course.description,
+        }), 201
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": "An error occurred while creating the course"}), 500
+
 
 @app.route('/courses/<int:id>', methods=['PUT'])
 @jwt_required()
