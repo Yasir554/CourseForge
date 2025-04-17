@@ -1,0 +1,15 @@
+.lesson-course-btn{
+    margin: 20px;
+    background-color: #343a40;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.lesson-course-btn:hover{
+    background-color: #495057;
+}

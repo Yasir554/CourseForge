@@ -31,10 +31,11 @@ const LessonsPage_Student = () => {
 
   return (
     <div className="lesson-page">
-      <h1>Lesson</h1>
-      <div dangerouslySetInnerHTML={{ __html: content }} />
-      <button onClick={() => navigate(-1)}>Back</button>
-      <button onClick={handleNext}>Next</button>
+      <div className="lesson-header"><h1>Lesson</h1></div>
+      
+      <div className="whiteboard-wrapper" dangerouslySetInnerHTML={{ __html: content }} />
+      <button className="lesson-course-btn" onClick={() => navigate(-1)}>Back</button>
+      <button  className="lesson-course-btn" onClick={handleNext}>Next</button>
     </div>
   );
 };
