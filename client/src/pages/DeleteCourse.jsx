@@ -63,7 +63,7 @@ const DeleteCourse = () => {
         {courses.map((c) => (
           <div key={c.id} className="course-card">
             <span>Course title: {c.title}</span>
-            <button onClick={() => mark(c.id)}>Delete</button>
+            <button className="toggle-btn " onClick={() => mark(c.id)}>Delete</button>
           </div>
         ))}
         {msg && <p>{msg}</p>}

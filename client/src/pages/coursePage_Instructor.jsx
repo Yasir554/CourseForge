@@ -79,14 +79,14 @@ const InstructorCoursePage = () => {
               <div key={lesson.id} className="lesson-title">
                 <span>{lesson.title}</span>
                 <div className="btn">
-                  <button
+                  <button className="buttons"
                     onClick={() =>
                       navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/edit`)
                     }
                   >
                     Edit Lesson 
                   </button>
-                  <button
+                  <button className="buttons"
                     onClick={() =>
                       navigate(`/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}`)
                     }

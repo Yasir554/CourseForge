@@ -22,16 +22,17 @@ const DeleteLessonChooser = () => {
   }, [courseId, token]);
 
   return (
-    <div>
-      <h1>Delete a Lesson</h1>
+    <div>  
+    <div><h1 >Delete a Lesson</h1></div>
+    <div className="delete-b">
       {lessons.length === 0 ? (
         <p>No lessons found for this course.</p>
       ) : (
-        <ul>
+        <ul className="ul">
           {lessons.map((lesson) => (
-            <li key={lesson.id}>
+            <li className="li" key={lesson.id}>
               {lesson.title}{" "}
-              <button
+              <button className="delete-lesson-btn"
                 onClick={() =>
                   navigate(
                     `/instructor/dashboard/courses/${courseId}/lessons/${lesson.id}/delete`
@@ -44,6 +45,7 @@ const DeleteLessonChooser = () => {
           ))}
         </ul>
       )}
+      </div>
     </div>
   );
 };

@@ -122,7 +122,7 @@ const CreateLesson = () => {
             <Field name="duration" />
             <ErrorMessage name="duration" component="div" className="error" />
 
-            <button type="submit" disabled={isSubmitting}>
+            <button className="create-course-btn " type="submit" disabled={isSubmitting}>
               {isEdit ? "Save Lesson" : "Create Lesson"}
             </button>
           </Form>

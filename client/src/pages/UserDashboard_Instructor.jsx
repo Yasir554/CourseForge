@@ -52,7 +52,7 @@ const UserDashboardInstructor = () => {
             {courses.map((c, idx) => (
               <div key={c.id} className="course-card">
                 <span>Course {idx + 1}</span>
-                <button onClick={() => navigate(`/instructor/dashboard/courses/${c.id}`)}>
+                <button className="continue-button" onClick={() => navigate(`/instructor/dashboard/courses/${c.id}`)}>
                   Continue
                 </button>
               </div>

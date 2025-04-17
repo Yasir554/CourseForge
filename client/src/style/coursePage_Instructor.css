@@ -98,8 +98,8 @@
   
   /* Lesson Card Buttons */
   .lesson-title .btn {
-    background-color: #343a40;
-    color: #ffffff;
+    background-color:#ffffff;
+    color: #343a40;
     border: none;
     padding: 8px 12px;
     margin-right: 5px;
@@ -108,8 +108,18 @@
     font-size: 14px;
     transition: background-color 0.3s ease;
   }
-  
-  .lesson-title .btn:hover {
+
+  .buttons{ 
+    padding: 6px 12px;
     background-color: #343a40;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+
   }
-  
+
+  .buttons:hover {
+    background-color: #5a6268;
+  }
